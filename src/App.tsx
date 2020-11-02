@@ -10,13 +10,7 @@ const App = () => {
   const [show, setShow] = useState(false);
   const [accessToken, setAccessToken] = useState<string>("");
 
-  const {
-    user,
-    isAuthenticated,
-    isLoading,
-    getAccessTokenSilently,
-    getIdTokenClaims,
-  } = useAuth0();
+  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
   console.log("is auth?", isAuthenticated);
 
   useEffect(() => {

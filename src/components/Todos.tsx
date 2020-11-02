@@ -9,7 +9,7 @@ const TodosQuery = `
 `;
 
 const Todos = () => {
-  const [result, reexecuteQuery] = useQuery({
+  const [result] = useQuery({
     query: TodosQuery,
   });
   console.log("result?", result);
