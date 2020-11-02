@@ -1,28 +1,14 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
 import Todos from "./components/Todos";
-
-const LoginButton = () => {
-  const { loginWithRedirect } = useAuth0();
-
-  return <button onClick={() => loginWithRedirect()}>Log In</button>;
-};
-
-const LogoutButton = () => {
-  const { logout } = useAuth0();
-
-  return (
-    <button onClick={() => logout({ returnTo: window.location.origin })}>
-      Log Out
-    </button>
-  );
-};
+import Nav from "./components/Nav";
+import { Button } from "@chakra-ui/core";
 
 const App = () => {
   const [show, setShow] = useState(false);
-  const [token, setToken] = useState("");
+  const [accessToken, setAccessToken] = useState<string>("");
 
   const {
     user,
@@ -31,17 +17,14 @@ const App = () => {
     getAccessTokenSilently,
     getIdTokenClaims,
   } = useAuth0();
+  console.log("is auth?", isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {
       const getToken = async () => {
-        // const accessToken = await getAccessTokenSilently({
-        //   audience: `https://the-hackboard.us.auth0.com/api/v2/`,
-        //   scope: "read:current_user",
-        // });
-        const accessToken = await getAccessTokenSilently();
-        console.log("token", accessToken);
-        setToken(accessToken);
+        const token = await getAccessTokenSilently();
+        console.log("token", token);
+        setAccessToken(token);
       };
 
       getToken();
@@ -55,9 +38,8 @@ const App = () => {
   const client = createClient({
     url: "https://the-hackboard.herokuapp.com/v1/graphql",
     fetchOptions: () => {
-      // const token = getToken();
       return {
-        headers: { authorization: token ? `Bearer ${token}` : "" },
+        headers: { authorization: accessToken ? `Bearer ${accessToken}` : "" },
       };
     },
   });
@@ -65,11 +47,10 @@ const App = () => {
   return (
     <Provider value={client}>
       <div>
-        <LoginButton />
-        <LogoutButton />
-        <button onClick={() => setShow(!show)}>click</button>
+        <Button onClick={() => setShow(!show)}>click</Button>
         {show && <Todos />}
       </div>
+      <Nav />
     </Provider>
   );
 };

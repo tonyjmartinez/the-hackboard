@@ -4,6 +4,8 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Auth0Provider } from "@auth0/auth0-react";
+import { ChakraProvider } from "@chakra-ui/core";
+import theme from "./theme/theme";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -14,7 +16,9 @@ ReactDOM.render(
       audience={process.env.REACT_APP_AUTH0_AUDIENCE}
       scope={process.env.REACT_APP_AUTH0_SCOPE}
     >
-      <App />
+      <ChakraProvider theme={theme}>
+        <App />
+      </ChakraProvider>
     </Auth0Provider>
   </React.StrictMode>,
   document.getElementById("root")
