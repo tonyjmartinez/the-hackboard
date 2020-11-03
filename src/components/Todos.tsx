@@ -4,6 +4,8 @@ const TodosQuery = `
   query {
     posts {
       title
+      is_public
+      post_items
     }
   }
 `;

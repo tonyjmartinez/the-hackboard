@@ -32,9 +32,12 @@ const App = () => {
   const client = createClient({
     url: "https://the-hackboard.herokuapp.com/v1/graphql",
     fetchOptions: () => {
-      return {
-        headers: { authorization: accessToken ? `Bearer ${accessToken}` : "" },
-      };
+      if (accessToken) {
+        return {
+          headers: { authorization: `Bearer ${accessToken}` },
+        };
+      }
+      return {};
     },
   });
 
