@@ -15,11 +15,9 @@ import {
   Input,
   Button,
   Container,
-  IconButton,
 } from "@chakra-ui/core";
-import { AddIcon } from "@chakra-ui/icons";
-
 import { VscComment } from "react-icons/vsc";
+
 const NewPost = () => {
   const { handleSubmit, errors, register } = useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);

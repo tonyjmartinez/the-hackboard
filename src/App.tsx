@@ -2,16 +2,14 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
-import Todos from "./components/Todos";
 import Nav from "./components/Nav";
-import { ChakraProvider, Button } from "@chakra-ui/core";
+import { ChakraProvider } from "@chakra-ui/core";
 import theme from "./theme/theme";
 import Page from "./components/Page";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import NewPost from "./components/NewPost";
 
 const App = () => {
-  const [show, setShow] = useState(false);
   const [accessToken, setAccessToken] = useState<string>("");
 
   const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();

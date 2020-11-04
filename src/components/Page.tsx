@@ -1,6 +1,6 @@
 import React from "react";
 import Card from "./Card";
-import { Center, VStack } from "@chakra-ui/core";
+import { VStack } from "@chakra-ui/core";
 
 const Page = () => {
   return (

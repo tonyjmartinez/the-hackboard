@@ -8,17 +8,10 @@ import {
   Button,
   useColorMode,
   Center,
-  Icon,
   useColorModeValue,
 } from "@chakra-ui/core";
 import React from "react";
-import {
-  AddIcon,
-  MoonIcon,
-  PlusSquareIcon,
-  SearchIcon,
-  SunIcon,
-} from "@chakra-ui/icons";
+import { AddIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
 
 const Nav = () => {
