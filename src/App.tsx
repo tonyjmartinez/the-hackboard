@@ -4,7 +4,11 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
 import Todos from "./components/Todos";
 import Nav from "./components/Nav";
-import { Button } from "@chakra-ui/core";
+import { ChakraProvider, Button } from "@chakra-ui/core";
+import theme from "./theme/theme";
+import Page from "./components/Page";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import NewPost from "./components/NewPost";
 
 const App = () => {
   const [show, setShow] = useState(false);
@@ -25,10 +29,6 @@ const App = () => {
     }
   }, [isAuthenticated, getAccessTokenSilently]);
 
-  if (isLoading) {
-    return <div>Loading ...</div>;
-  }
-
   const client = createClient({
     url: "https://the-hackboard.herokuapp.com/v1/graphql",
     fetchOptions: () => {
@@ -43,11 +43,20 @@ const App = () => {
 
   return (
     <Provider value={client}>
-      <div>
-        <Button onClick={() => setShow(!show)}>click</Button>
-        {show && <Todos />}
-      </div>
-      <Nav />
+      <ChakraProvider theme={theme}>
+        <Router>
+          <Switch>
+            <Route path="/new">
+              <NewPost />
+            </Route>
+            <Route path="/">
+              <Page />
+            </Route>
+          </Switch>
+
+          {!isLoading && <Nav />}
+        </Router>
+      </ChakraProvider>
     </Provider>
   );
 };

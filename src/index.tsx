@@ -16,9 +16,7 @@ ReactDOM.render(
       audience={process.env.REACT_APP_AUTH0_AUDIENCE}
       scope={process.env.REACT_APP_AUTH0_SCOPE}
     >
-      <ChakraProvider theme={theme}>
-        <App />
-      </ChakraProvider>
+      <App />
     </Auth0Provider>
   </React.StrictMode>,
   document.getElementById("root")
