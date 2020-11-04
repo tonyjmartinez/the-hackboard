@@ -6,7 +6,7 @@ import Nav from "./components/Nav";
 import { ChakraProvider } from "@chakra-ui/core";
 import theme from "./theme/theme";
 import Page from "./components/Page";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import NewPost from "./components/NewPost";
 
 const App = () => {
