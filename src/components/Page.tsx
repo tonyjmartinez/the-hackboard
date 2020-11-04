@@ -1,14 +1,16 @@
 import React from "react";
 import Card from "./Card";
-import { VStack } from "@chakra-ui/core";
+import { Box, VStack } from "@chakra-ui/core";
 
 const Page = () => {
   return (
-    <VStack spacing={7}>
-      <Card />
-      <Card />
-      <Card />
-    </VStack>
+    <Box pb={6} pt={3}>
+      <VStack spacing={7}>
+        <Card />
+        <Card />
+        <Card />
+      </VStack>
+    </Box>
   );
 };
 
