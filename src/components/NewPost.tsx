@@ -17,7 +17,6 @@ import {
   Button,
   Container,
   useTheme,
-  shadow,
   Textarea,
   ButtonGroup,
   Editable,
@@ -164,13 +163,10 @@ const NewPost = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTextArea, setShowTextArea] = useState(false);
   const [postItems, setPostItems] = useState<number[]>([]);
-  const [textValue, setTextValue] = useState("");
   const [submittedTextId, setSubmittedTextId] = useState(-1);
   const [insertItemResult, insertItem] = useMutation(InsertItem);
-  const [insertPostResult, insertPost] = useMutation(InsertPost);
-  const [updateItemResult, updateItem] = useMutation(UpdatePostItem);
-
-  const theme = useTheme();
+  const [, insertPost] = useMutation(InsertPost);
+  const [, updateItem] = useMutation(UpdatePostItem);
 
   const { user } = useAuth0();
 

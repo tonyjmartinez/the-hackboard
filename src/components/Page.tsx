@@ -1,5 +1,5 @@
 import React from "react";
-import Card, { CardProps } from "./Card";
+import Card from "./Card";
 import { useQuery } from "urql";
 import { Box, VStack } from "@chakra-ui/react";
 
