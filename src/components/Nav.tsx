@@ -9,9 +9,9 @@ import {
   useColorMode,
   Center,
   useColorModeValue,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import React from "react";
-import { AddIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { Sun, Moon, PlusCircle } from "phosphor-react";
 import { Link } from "react-router-dom";
 
 const Nav = () => {
@@ -39,7 +39,7 @@ const Nav = () => {
                   colorScheme={iconColor}
                   aria-label="new post"
                   variant="solid"
-                  icon={<AddIcon />}
+                  icon={<PlusCircle />}
                 />
               </Link>
 
@@ -60,7 +60,7 @@ const Nav = () => {
             onClick={toggleColorMode}
             colorScheme={iconColor}
             aria-label="Dark Mode toggle"
-            icon={isLight ? <MoonIcon /> : <SunIcon />}
+            icon={isLight ? <Moon /> : <Sun />}
           />
         </Box>
       </Flex>

@@ -14,7 +14,6 @@ const Todos = () => {
   const [result] = useQuery({
     query: TodosQuery,
   });
-  console.log("result?", result);
   const { data, fetching, error } = result;
   if (fetching) return <p>Loading...</p>;
   if (error) return <p>Oh no... {error.message}</p>;

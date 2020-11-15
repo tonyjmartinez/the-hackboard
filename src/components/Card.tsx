@@ -1,14 +1,22 @@
 import React from "react";
-import { Box, Image, Badge } from "@chakra-ui/core";
+import { Box, Image, Badge } from "@chakra-ui/react";
+import moment from "moment";
 // Sample card from Airbnb
 
-const Card = () => {
+export interface CardProps {
+  title: string;
+  subtitle: string;
+  id?: number;
+  createdAt?: any;
+}
+
+const Card = ({ title, subtitle, createdAt }: CardProps) => {
   const property = {
     imageUrl: "https://bit.ly/2Z4KKcF",
     imageAlt: "Rear view of modern home with pool",
     beds: 3,
     baths: 2,
-    title: "Modern home in city center in the heart of historic Los Angeles",
+    title: `${title ? title : "Oops no title"}`,
     formattedPrice: "$1,900.00",
     reviewCount: 34,
     rating: 4,
@@ -31,7 +39,7 @@ const Card = () => {
             textTransform="uppercase"
             ml="2"
           >
-            {property.beds} beds &bull; {property.baths} baths
+            {moment(createdAt).fromNow()}
           </Box>
         </Box>
 
@@ -45,12 +53,7 @@ const Card = () => {
           {property.title}
         </Box>
 
-        <Box>
-          {property.formattedPrice}
-          <Box as="span" color="gray.600" fontSize="sm">
-            / wk
-          </Box>
-        </Box>
+        <Box>{subtitle}</Box>
       </Box>
     </Box>
   );

@@ -3,7 +3,7 @@ import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
 import Nav from "./components/Nav";
-import { ChakraProvider } from "@chakra-ui/core";
+import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./theme/theme";
 import Page from "./components/Page";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
@@ -13,13 +13,11 @@ const App = () => {
   const [accessToken, setAccessToken] = useState<string>("");
 
   const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
-  console.log("is auth?", isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {
       const getToken = async () => {
         const token = await getAccessTokenSilently();
-        console.log("token", token);
         setAccessToken(token);
       };
 
