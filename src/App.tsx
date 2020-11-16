@@ -3,11 +3,12 @@ import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
 import Nav from "./components/Nav";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, Box } from "@chakra-ui/react";
 import theme from "./theme/theme";
 import Page from "./components/Page";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import NewPost from "./components/NewPost";
+import Post from "./components/Post";
 
 const App = () => {
   const [accessToken, setAccessToken] = useState<string>("");
@@ -43,10 +44,15 @@ const App = () => {
         <Router>
           <Switch>
             <Route path="/new">
-              <NewPost />
+              <Box mb={90}>
+                <NewPost />
+              </Box>
             </Route>
+            <Route path="/posts/:id" children={<Post />} />
             <Route path="/">
-              <Page />
+              <Box mb={90}>
+                <Page />
+              </Box>
             </Route>
           </Switch>
 

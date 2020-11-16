@@ -8,6 +8,7 @@ import {
   Button,
   useColorMode,
   Center,
+  useTheme,
   useColorModeValue,
 } from "@chakra-ui/react";
 import React from "react";
@@ -19,7 +20,11 @@ const Nav = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const isLight = colorMode === "light";
 
-  const iconColor = useColorModeValue("cyan", "teal");
+  const theme = useTheme();
+  const darkBlue = useColorModeValue("gray", theme.colors.blue[800]);
+
+  const buttonIconColor = useColorModeValue("cyan", "teal");
+  const iconColor = useColorModeValue("white", darkBlue);
 
   return (
     <Box pos="fixed" bottom="0" w="100%">
@@ -36,10 +41,10 @@ const Nav = () => {
             <>
               <Link to="/new">
                 <IconButton
-                  colorScheme={iconColor}
+                  colorScheme={buttonIconColor}
                   aria-label="new post"
                   variant="solid"
-                  icon={<PlusCircle />}
+                  icon={<PlusCircle size={40} color={iconColor} />}
                 />
               </Link>
 
@@ -58,9 +63,15 @@ const Nav = () => {
 
           <IconButton
             onClick={toggleColorMode}
-            colorScheme={iconColor}
+            colorScheme={buttonIconColor}
             aria-label="Dark Mode toggle"
-            icon={isLight ? <Moon /> : <Sun />}
+            icon={
+              isLight ? (
+                <Moon size={40} color={iconColor} />
+              ) : (
+                <Sun size={40} color={iconColor} />
+              )
+            }
           />
         </Box>
       </Flex>

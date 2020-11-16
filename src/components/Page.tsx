@@ -2,6 +2,7 @@ import React from "react";
 import Card from "./Card";
 import { useQuery } from "urql";
 import { Box, VStack } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 
 const GetPosts = `
   query MyQuery {
@@ -30,12 +31,14 @@ const Page = () => {
         {result.data?.posts.map((item: ItemType, idx: number) => {
           const { title, subtitle, id, created_at } = item;
           return (
-            <Card
-              title={title}
-              subtitle={subtitle}
-              key={id}
-              createdAt={created_at}
-            />
+            <Link to={`/posts/${id}`}>
+              <Card
+                title={title}
+                subtitle={subtitle}
+                key={id}
+                createdAt={created_at}
+              />
+            </Link>
           );
         })}
       </VStack>
