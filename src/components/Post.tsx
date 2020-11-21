@@ -2,6 +2,7 @@ import { VStack, Heading, Box, Text } from "@chakra-ui/react";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "urql";
+import TextContent from "./TextContent";
 
 const GetPost = `
   query MyQuery($id: Int) {
@@ -31,13 +32,13 @@ const Post = () => {
     <VStack>
       {result.data.posts.map(
         ({ title, subtitle, post_items }: any, idx: number) => (
-          <Box mt={20} w="60%" textAlign="left">
+          <Box key={idx} mt={20} w="60%" textAlign="left">
             <VStack spacing={7} align="start">
               <Heading>{title}</Heading>
               <Text>{subtitle}</Text>
               {post_items.length > 0 &&
                 post_items.map((item: any, idx: number) => (
-                  <div key={idx}>{JSON.stringify(item)}</div>
+                  <TextContent itemId={item} />
                 ))}
             </VStack>
           </Box>

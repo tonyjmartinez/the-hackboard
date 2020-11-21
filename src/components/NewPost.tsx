@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
+import { ItemTypes } from "../util/enums";
 import {
   FormErrorMessage,
   Center,
@@ -45,8 +46,8 @@ type PostItemBtnProps = {
 };
 
 const InsertItem = `
-  mutation ($value: String!, $userid: String!) {
-    insert_items(objects: {value: $value, user_id: $userid}) {
+  mutation ($value: String!, $userid: String!, $type: String!) {
+    insert_items(objects: {value: $value, user_id: $userid, type: $type}) {
       returning {
         value
         id
@@ -179,7 +180,7 @@ const NewPost = () => {
   }, [insertItemResult]);
 
   const sendItem = (value: string) => {
-    insertItem({ value, userid: user.sub });
+    insertItem({ value, userid: user.sub, type: ItemTypes.Text });
   };
   const sendUpdateItem = (value: string, id: number) => {
     updateItem({ value, id });
@@ -252,7 +253,7 @@ const NewPost = () => {
 
         <Button
           mt={4}
-          variantColor="teal"
+          colorScheme="teal"
           isLoading={isSubmitting}
           type="submit"
         >

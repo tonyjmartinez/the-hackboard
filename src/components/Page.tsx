@@ -31,7 +31,7 @@ const Page = () => {
         {result.data?.posts.map((item: ItemType, idx: number) => {
           const { title, subtitle, id, created_at } = item;
           return (
-            <Link to={`/posts/${id}`}>
+            <Link to={`/posts/${id}`} key={idx}>
               <Card
                 title={title}
                 subtitle={subtitle}
