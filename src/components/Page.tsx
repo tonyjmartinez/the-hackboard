@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const GetPosts = `
   query MyQuery {
-    posts {
+    posts(order_by: {created_at: desc}) {
       id
       post_items
       title

@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 import { ItemTypes } from "../util/enums";
+import ReactFilestack from "filestack-react";
 import {
   FormErrorMessage,
   Center,
@@ -51,6 +52,7 @@ const InsertItem = `
       returning {
         value
         id
+        type
       }
     }
   }
@@ -69,7 +71,7 @@ const InsertPost = `
   }
 `;
 
-const UpdatePostItem = `
+const UpdateItemValue = `
   mutation ($id: Int, $value: String = "") {
     update_items(where: {id: {_eq: $id}}, _set: {value: $value}) {
       returning {
@@ -83,10 +85,21 @@ const UpdatePostItem = `
 
 interface EditableAreaProps {
   onChange?: (e: any) => void;
-  onSubmit: (e: any) => void;
+  onSubmit?: (e: any) => void;
+  isSubmitting?: boolean;
+  startWithEditView?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
 }
 
-const EditableArea = ({ onChange, onSubmit }: EditableAreaProps) => {
+const EditableArea = ({
+  onChange,
+  onSubmit,
+  isSubmitting = false,
+  startWithEditView = true,
+  placeholder = "",
+  defaultValue = "",
+}: EditableAreaProps) => {
   const theme = useTheme();
   const borderColor = useColorModeValue("gray", theme.colors.blue[500]);
   /* Here's a custom control */
@@ -115,18 +128,18 @@ const EditableArea = ({ onChange, onSubmit }: EditableAreaProps) => {
   return (
     <Editable
       textAlign="center"
-      defaultValue=""
+      defaultValue={defaultValue}
       fontSize="2xl"
       isPreviewFocusable={false}
       submitOnBlur={false}
-      startWithEditView
-      placeholder="New text content"
+      startWithEditView={startWithEditView}
+      placeholder={placeholder}
       onChange={onChange}
       onSubmit={onSubmit}
     >
       {(props) => (
         <Box border={`2px solid ${borderColor}`} borderRadius="5px" p={3}>
-          <FormLabel>Text Content</FormLabel>
+          <FormLabel>{isSubmitting ? "Loading..." : "Text Content"}</FormLabel>
           <EditablePreview />
           <EditableInput as={Textarea} />
           <EditableControls {...props} />
@@ -159,23 +172,49 @@ const PostItemBtn = ({ text, icon, onClick }: PostItemBtnProps) => {
   );
 };
 
+const thumbnail = (url: any) => {
+  const parts = url.split("/");
+  parts.splice(3, 0, "resize=width:400");
+  return parts.join("/");
+};
+
+type PostItem = {
+  id: number;
+  value: string;
+  type: string;
+};
+
 const NewPost = () => {
   const { handleSubmit, errors, register } = useForm();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTextArea, setShowTextArea] = useState(false);
-  const [postItems, setPostItems] = useState<number[]>([]);
-  const [submittedTextId, setSubmittedTextId] = useState(-1);
+  const [showImageUpload, setShowImageUpload] = useState(false);
+  const [postItemIds, setPostItemIds] = useState<number[]>([]);
+  const [, setSubmittedTextId] = useState(-1);
   const [insertItemResult, insertItem] = useMutation(InsertItem);
-  const [, insertPost] = useMutation(InsertPost);
-  const [, updateItem] = useMutation(UpdatePostItem);
+  const [insertPostResult, insertPost] = useMutation(InsertPost);
+  const [, updateItem] = useMutation(UpdateItemValue);
+  const [, setUrl] = useState(null);
+  const [postItems, setPostItems] = useState<PostItem[]>([]);
+
+  console.log("post items", postItems);
 
   const { user } = useAuth0();
 
+  const onFileUpload = (response: any) => {
+    setUrl(thumbnail(response.filesUploaded[0].url));
+  };
+
   useEffect(() => {
-    const newItemId = insertItemResult?.data?.insert_items?.returning[0].id;
-    if (newItemId) {
-      setPostItems((oldItems) => [...oldItems, newItemId]);
-      setSubmittedTextId(newItemId);
+    const newItem = insertItemResult?.data?.insert_items?.returning[0];
+
+    if (newItem) {
+      const { value, id, type } = newItem;
+      setPostItemIds((oldItems) => [...oldItems, newItem.id]);
+      setPostItems((oldItems) => [...oldItems, { value, id, type }]);
+      setSubmittedTextId(newItem.id);
+      if (type === ItemTypes.Text) {
+        setShowTextArea(false);
+      }
     }
   }, [insertItemResult]);
 
@@ -195,24 +234,49 @@ const NewPost = () => {
 
   const onSubmit = async (values: any) => {
     const { title, subtitle } = values;
-    setIsSubmitting(true);
     insertPost({
       title,
       subtitle,
       user_id: user.sub,
-      post_items: postItems,
+      post_items: postItemIds,
       created_at: moment(),
     });
-
-    setIsSubmitting(false);
   };
 
   const onTextItemSubmit = (text: string) => {
-    if (submittedTextId === -1) {
-      sendItem(text);
-    } else if (submittedTextId > 0) {
-      sendUpdateItem(text, submittedTextId);
-    }
+    sendItem(text);
+    // if (submittedTextId === -1) {
+    //   sendItem(text);
+    // } else if (submittedTextId > 0) {
+    //   sendUpdateItem(text, submittedTextId);
+    // }
+  };
+
+  const ImageUploader = () => {
+    return (
+      <>
+        <ReactFilestack
+          apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
+          componentDisplayMode={{ type: "immediate" }}
+          actionOptions={{
+            displayMode: "inline",
+            container: "picker",
+            accept: "image/*",
+            allowManualRetry: true,
+            fromSources: ["local_file_system"],
+          }}
+          onSuccess={onFileUpload}
+        />
+        <div
+          id="picker"
+          style={{
+            marginTop: "2rem",
+            height: "20rem",
+            marginBottom: "2em",
+          }}
+        ></div>
+      </>
+    );
   };
 
   return (
@@ -238,7 +302,30 @@ const NewPost = () => {
             ref={register({ validate: validateTitle })}
           />
         </FormControl>
-        {showTextArea && <EditableArea onSubmit={onTextItemSubmit} />}
+        {postItems?.map(({ value, id, type }: PostItem, idx: number) => {
+          switch (type) {
+            case ItemTypes.Text:
+              return (
+                <EditableArea
+                  onSubmit={(val: string) => {
+                    console.log("submitted...", val);
+                    sendUpdateItem(val, id);
+                  }}
+                  defaultValue={value}
+                  startWithEditView={false}
+                />
+              );
+            default:
+              return <div>Oops</div>;
+          }
+        })}
+        {showTextArea && (
+          <EditableArea
+            onSubmit={onTextItemSubmit}
+            isSubmitting={insertItemResult.fetching}
+          />
+        )}
+        {showImageUpload && <ImageUploader />}
 
         {/* {showTextArea && (
           <FormControl isInvalid={errors.text}>
@@ -253,8 +340,9 @@ const NewPost = () => {
 
         <Button
           mt={4}
+          isLoading={insertPostResult.fetching}
+          loadingText="Submitting"
           colorScheme="teal"
-          isLoading={isSubmitting}
           type="submit"
         >
           Submit
@@ -267,7 +355,11 @@ const NewPost = () => {
           icon={TextIcon}
           onClick={() => setShowTextArea(true)}
         />
-        <PostItemBtn text="Image" icon={Image} />
+        <PostItemBtn
+          text="Image"
+          icon={Image}
+          onClick={() => setShowImageUpload(true)}
+        />
         <PostItemBtn text="Markdown" icon={Article} />
         <PostItemBtn text="Code Snippet" icon={Code} />
       </SimpleGrid>
