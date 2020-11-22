@@ -6,6 +6,7 @@ import ReactFilestack from "filestack-react";
 import {
   FormErrorMessage,
   Center,
+  Image,
   useColorModeValue,
   VStack,
   Text,
@@ -31,7 +32,7 @@ import { useMutation } from "urql";
 
 import {
   Text as TextIcon,
-  Image,
+  Image as ImageIcon,
   Article,
   Code,
   CheckCircle,
@@ -59,13 +60,14 @@ const InsertItem = `
 `;
 
 const InsertPost = `
-  mutation ($post_items: jsonb, $title: String, $user_id: String, $subtitle: String, $created_at: timestamptz) {
-    insert_posts(objects: {post_items: $post_items, title: $title, user_id: $user_id, subtitle: $subtitle, created_at: $created_at}) {
+  mutation ($post_items: jsonb, $title: String, $user_id: String, $subtitle: String, $created_at: timestamptz, $image: String) {
+    insert_posts(objects: {post_items: $post_items, title: $title, user_id: $user_id, subtitle: $subtitle, created_at: $created_at, image: $image}) {
       returning {
         id
         post_items
         title
         subtitle
+        image
       }
     }
   }
@@ -193,14 +195,20 @@ const NewPost = () => {
   const [insertItemResult, insertItem] = useMutation(InsertItem);
   const [insertPostResult, insertPost] = useMutation(InsertPost);
   const [, updateItem] = useMutation(UpdateItemValue);
-  const [, setUrl] = useState(null);
+  const [url, setUrl] = useState(null);
   const [postItems, setPostItems] = useState<PostItem[]>([]);
+  console.log("url here", url);
+  console.log("insertPostResult", insertPostResult);
 
   console.log("post items", postItems);
 
   const { user } = useAuth0();
 
   const onFileUpload = (response: any) => {
+    sendItem(thumbnail(response.filesUploaded[0].url), ItemTypes.Image);
+  };
+
+  const onSelectCoverImage = (response: any) => {
     setUrl(thumbnail(response.filesUploaded[0].url));
   };
 
@@ -215,11 +223,14 @@ const NewPost = () => {
       if (type === ItemTypes.Text) {
         setShowTextArea(false);
       }
+      if (type === ItemTypes.Image) {
+        setShowImageUpload(false);
+      }
     }
   }, [insertItemResult]);
 
-  const sendItem = (value: string) => {
-    insertItem({ value, userid: user.sub, type: ItemTypes.Text });
+  const sendItem = (value: string, type: string) => {
+    insertItem({ value, userid: user.sub, type });
   };
   const sendUpdateItem = (value: string, id: number) => {
     updateItem({ value, id });
@@ -234,17 +245,19 @@ const NewPost = () => {
 
   const onSubmit = async (values: any) => {
     const { title, subtitle } = values;
+    console.log("on submit", url);
     insertPost({
       title,
       subtitle,
       user_id: user.sub,
       post_items: postItemIds,
       created_at: moment(),
+      image: url,
     });
   };
 
   const onTextItemSubmit = (text: string) => {
-    sendItem(text);
+    sendItem(text, ItemTypes.Text);
     // if (submittedTextId === -1) {
     //   sendItem(text);
     // } else if (submittedTextId > 0) {
@@ -258,23 +271,27 @@ const NewPost = () => {
         <ReactFilestack
           apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
           componentDisplayMode={{ type: "immediate" }}
+          customRender={({ onPick }: any) => (
+            <Button onClick={onPick}>Upload</Button>
+          )}
           actionOptions={{
-            displayMode: "inline",
-            container: "picker",
+            // displayMode: "inline",
+            // container: "picker",
+
             accept: "image/*",
             allowManualRetry: true,
             fromSources: ["local_file_system"],
           }}
           onSuccess={onFileUpload}
         />
-        <div
+        {/* <div
           id="picker"
           style={{
             marginTop: "2rem",
             height: "20rem",
             marginBottom: "2em",
           }}
-        ></div>
+        ></div> */}
       </>
     );
   };
@@ -289,6 +306,21 @@ const NewPost = () => {
             name="title"
             placeholder="title"
             ref={register({ validate: validateTitle })}
+            mb={3}
+          />
+
+          <ReactFilestack
+            apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
+            componentDisplayMode={{ type: "immediate" }}
+            customRender={({ onPick }: any) => (
+              <Button onClick={onPick}>Select Cover Image</Button>
+            )}
+            actionOptions={{
+              accept: "image/*",
+              allowManualRetry: true,
+              fromSources: ["local_file_system"],
+            }}
+            onSuccess={onSelectCoverImage}
           />
           <FormErrorMessage>
             {errors.title && errors.title.message}
@@ -315,6 +347,8 @@ const NewPost = () => {
                   startWithEditView={false}
                 />
               );
+            case ItemTypes.Image:
+              return <Image src={value} />;
             default:
               return <div>Oops</div>;
           }
@@ -355,11 +389,24 @@ const NewPost = () => {
           icon={TextIcon}
           onClick={() => setShowTextArea(true)}
         />
-        <PostItemBtn
-          text="Image"
-          icon={Image}
-          onClick={() => setShowImageUpload(true)}
+
+        <ReactFilestack
+          apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
+          componentDisplayMode={{ type: "immediate" }}
+          customRender={({ onPick }: any) => (
+            <PostItemBtn text="Image" icon={ImageIcon} onClick={onPick} />
+          )}
+          actionOptions={{
+            // displayMode: "inline",
+            // container: "picker",
+
+            accept: "image/*",
+            allowManualRetry: true,
+            fromSources: ["local_file_system"],
+          }}
+          onSuccess={onFileUpload}
         />
+
         <PostItemBtn text="Markdown" icon={Article} />
         <PostItemBtn text="Code Snippet" icon={Code} />
       </SimpleGrid>

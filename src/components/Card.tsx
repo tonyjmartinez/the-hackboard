@@ -8,23 +8,18 @@ export interface CardProps {
   subtitle: string;
   id?: number;
   createdAt?: any;
+  imageUrl?: string;
 }
 
-const Card = ({ title, subtitle, createdAt }: CardProps) => {
-  const property = {
-    imageUrl: "https://bit.ly/2Z4KKcF",
-    imageAlt: "Rear view of modern home with pool",
-    beds: 3,
-    baths: 2,
-    title: `${title ? title : "Oops no title"}`,
-    formattedPrice: "$1,900.00",
-    reviewCount: 34,
-    rating: 4,
-  };
-
+const Card = ({
+  title,
+  subtitle,
+  createdAt,
+  imageUrl = "https://bit.ly/2Z4KKcF",
+}: CardProps) => {
   return (
     <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
-      <Image src={property.imageUrl} alt={property.imageAlt} />
+      <Image src={imageUrl} alt={"post image"} />
 
       <Box p="6">
         <Box d="flex" alignItems="baseline">
@@ -50,7 +45,7 @@ const Card = ({ title, subtitle, createdAt }: CardProps) => {
           lineHeight="tight"
           isTruncated
         >
-          {property.title}
+          {title}
         </Box>
 
         <Box>{subtitle}</Box>

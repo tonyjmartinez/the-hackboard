@@ -12,6 +12,7 @@ const GetPosts = `
       title
       subtitle
       created_at
+      image
     }
   }
 `;
@@ -21,6 +22,7 @@ export interface ItemType {
   subtitle: string;
   id?: number;
   created_at?: any;
+  image?: string;
 }
 
 const Page = () => {
@@ -29,7 +31,8 @@ const Page = () => {
     <Box pb={6} pt={3}>
       <VStack spacing={7}>
         {result.data?.posts.map((item: ItemType, idx: number) => {
-          const { title, subtitle, id, created_at } = item;
+          const { title, subtitle, id, image, created_at } = item;
+          console.log("item", item);
           return (
             <Link to={`/posts/${id}`} key={idx}>
               <Card
@@ -37,6 +40,7 @@ const Page = () => {
                 subtitle={subtitle}
                 key={id}
                 createdAt={created_at}
+                imageUrl={image ? image : undefined}
               />
             </Link>
           );
