@@ -20,7 +20,7 @@ const PostContent = ({ itemId }: PostContentProps) => {
   const [result] = useQuery({ query: GetItem, variables: { id: itemId } });
   if (result.fetching) return <div>Loading...</div>;
   console.log("result", result);
-  const { id, type, value } = result.data?.items[0];
+  const { type, value } = result.data?.items[0];
   console.log("result", result);
 
   // return <div>{result.data?.items[0].value}</div>;
