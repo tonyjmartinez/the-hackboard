@@ -307,6 +307,7 @@ const NewPost = () => {
             placeholder="title"
             ref={register({ validate: validateTitle })}
             mb={3}
+            autoComplete="off"
           />
 
           <ReactFilestack
@@ -332,6 +333,7 @@ const NewPost = () => {
             name="subtitle"
             placeholder="subtitle"
             ref={register({ validate: validateTitle })}
+            autoComplete="off"
           />
         </FormControl>
         {postItems?.map(({ value, id, type }: PostItem, idx: number) => {

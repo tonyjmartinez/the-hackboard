@@ -1,4 +1,4 @@
-import { VStack, Heading, Box, Text } from "@chakra-ui/react";
+import { VStack, Image, Heading, Box, Text } from "@chakra-ui/react";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "urql";
@@ -12,6 +12,7 @@ const GetPost = `
       created_at
       subtitle
       title
+      image
     }
   }
 `;
@@ -31,9 +32,11 @@ const Post = () => {
   return (
     <VStack>
       {result.data.posts.map(
-        ({ title, subtitle, post_items }: any, idx: number) => (
+        ({ title, subtitle, post_items, image }: any, idx: number) => (
           <Box key={idx} mt={20} w="60%" textAlign="left">
             <VStack spacing={7} align="start">
+              {image && <Image src={image} />}
+
               <Heading>{title}</Heading>
               <Text>{subtitle}</Text>
               {post_items.length > 0 &&
