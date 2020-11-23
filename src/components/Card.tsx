@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Image, Badge } from "@chakra-ui/react";
+import { Box, Image, AspectRatio, Badge } from "@chakra-ui/react";
 import moment from "moment";
 // Sample card from Airbnb
 
@@ -18,8 +18,10 @@ const Card = ({
   imageUrl = "https://bit.ly/2Z4KKcF",
 }: CardProps) => {
   return (
-    <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
-      <Image src={imageUrl} alt={"post image"} />
+    <Box w="100%" borderWidth="1px" borderRadius="lg" overflow="hidden">
+      <AspectRatio ratio={16 / 9}>
+        <Image src={imageUrl} alt={"post image"} />
+      </AspectRatio>
 
       <Box p="6">
         <Box d="flex" alignItems="baseline">

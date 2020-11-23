@@ -1,7 +1,7 @@
 import React from "react";
 import Card from "./Card";
 import { useQuery } from "urql";
-import { Box, VStack } from "@chakra-ui/react";
+import { Box, VStack, Center } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
 const GetPosts = `
@@ -29,12 +29,12 @@ const Page = () => {
   const [result] = useQuery({ query: GetPosts });
   return (
     <Box pb={6} pt={3}>
-      <VStack spacing={7}>
-        {result.data?.posts.map((item: ItemType, idx: number) => {
-          const { title, subtitle, id, image, created_at } = item;
-          console.log("item", item);
-          return (
-            <Link to={`/posts/${id}`} key={idx}>
+      {result.data?.posts.map((item: ItemType, idx: number) => {
+        const { title, subtitle, id, image, created_at } = item;
+        console.log("item", item);
+        return (
+          <Box w={["80%", "40%"]} m="auto" marginY={6} key={id}>
+            <Link to={`/posts/${id}`}>
               <Card
                 title={title}
                 subtitle={subtitle}
@@ -43,9 +43,9 @@ const Page = () => {
                 imageUrl={image ? image : undefined}
               />
             </Link>
-          );
-        })}
-      </VStack>
+          </Box>
+        );
+      })}
     </Box>
   );
 };

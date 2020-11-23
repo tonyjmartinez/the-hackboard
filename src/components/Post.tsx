@@ -1,4 +1,11 @@
-import { VStack, Image, Heading, Box, Text } from "@chakra-ui/react";
+import {
+  VStack,
+  Image,
+  Heading,
+  Box,
+  Text,
+  AspectRatio,
+} from "@chakra-ui/react";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "urql";
@@ -27,27 +34,34 @@ const Post = () => {
   const [result] = useQuery({ query: GetPost, variables: { id } });
 
   if (result.fetching) return <div>Loading...</div>;
-  console.log("result", result.data);
 
   return (
-    <VStack>
+    <>
       {result.data.posts.map(
-        ({ title, subtitle, post_items, image }: any, idx: number) => (
-          <Box key={idx} mt={20} w="60%" textAlign="left">
-            <VStack spacing={7} align="start">
-              {image && <Image src={image} />}
+        ({ title, subtitle, post_items, image }: any, idx: number) => {
+          console.log("image", image);
+          return (
+            <Box key={idx} m="auto" mt={20} w="80%" textAlign="left">
+              <VStack spacing={7} align="start">
+                {image && (
+                  // TODO: Bug with aspect ratio?
+                  // <AspectRatio ratio={16 / 9}>
+                  <Image src={image} />
+                  // </AspectRatio>
+                )}
 
-              <Heading>{title}</Heading>
-              <Text>{subtitle}</Text>
-              {post_items.length > 0 &&
-                post_items.map((item: any, idx: number) => (
-                  <PostContent key={item} itemId={item} />
-                ))}
-            </VStack>
-          </Box>
-        )
+                <Heading>{title}</Heading>
+                <Text>{subtitle}</Text>
+                {post_items.length > 0 &&
+                  post_items.map((item: any, idx: number) => (
+                    <PostContent key={item} itemId={item} />
+                  ))}
+              </VStack>
+            </Box>
+          );
+        }
       )}
-    </VStack>
+    </>
   );
 };
 

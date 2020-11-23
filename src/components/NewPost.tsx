@@ -7,6 +7,11 @@ import {
   FormErrorMessage,
   Center,
   Image,
+  Tabs,
+  Tab,
+  TabList,
+  TabPanels,
+  TabPanel,
   useColorModeValue,
   VStack,
   Text,
@@ -195,7 +200,7 @@ const NewPost = () => {
   const [insertItemResult, insertItem] = useMutation(InsertItem);
   const [insertPostResult, insertPost] = useMutation(InsertPost);
   const [, updateItem] = useMutation(UpdateItemValue);
-  const [url, setUrl] = useState(null);
+  const [url, setUrl] = useState<string | null>(null);
   const [postItems, setPostItems] = useState<PostItem[]>([]);
   console.log("url here", url);
   console.log("insertPostResult", insertPostResult);
@@ -310,19 +315,38 @@ const NewPost = () => {
             autoComplete="off"
           />
 
-          <ReactFilestack
-            apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
-            componentDisplayMode={{ type: "immediate" }}
-            customRender={({ onPick }: any) => (
-              <Button onClick={onPick}>Select Cover Image</Button>
-            )}
-            actionOptions={{
-              accept: "image/*",
-              allowManualRetry: true,
-              fromSources: ["local_file_system"],
-            }}
-            onSuccess={onSelectCoverImage}
-          />
+          <Tabs variant="soft-rounded" colorScheme="teal" marginY={3}>
+            <TabList>
+              <Tab>Upload Image</Tab>
+              <Tab>Image URL</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <ReactFilestack
+                  apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
+                  componentDisplayMode={{ type: "immediate" }}
+                  customRender={({ onPick }: any) => (
+                    <Button onClick={onPick}>Select Cover Image</Button>
+                  )}
+                  actionOptions={{
+                    accept: "image/*",
+                    allowManualRetry: true,
+                    fromSources: ["local_file_system"],
+                  }}
+                  onSuccess={onSelectCoverImage}
+                />
+              </TabPanel>
+              <TabPanel>
+                <Input
+                  placeholder="Image URL"
+                  ref={register({ validate: validateTitle })}
+                  autoComplete="off"
+                  onChange={(e) => setUrl(e.target.value)}
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+
           <FormErrorMessage>
             {errors.title && errors.title.message}
           </FormErrorMessage>
