@@ -1,7 +1,7 @@
 import React from "react";
 import Card from "./Card";
 import { useQuery } from "urql";
-import { Box, VStack, Center } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
 const GetPosts = `

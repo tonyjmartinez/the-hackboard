@@ -1,11 +1,4 @@
-import {
-  VStack,
-  Image,
-  Heading,
-  Box,
-  Text,
-  AspectRatio,
-} from "@chakra-ui/react";
+import { VStack, Image, Heading, Box, Text } from "@chakra-ui/react";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "urql";
