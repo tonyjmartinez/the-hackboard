@@ -13,7 +13,7 @@ import Post from "./components/Post";
 const App = () => {
   const [accessToken, setAccessToken] = useState<string>("");
 
-  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -55,8 +55,7 @@ const App = () => {
               </Box>
             </Route>
           </Switch>
-
-          {!isLoading && <Nav />}
+          <Nav />
         </Router>
       </ChakraProvider>
     </Provider>
