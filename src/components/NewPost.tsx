@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ReactText } from "react";
 import moment from "moment";
 import { ItemTypes } from "../util/enums";
 import ReactFilestack from "filestack-react";
@@ -11,6 +11,9 @@ import {
   Tab,
   TabList,
   TabPanels,
+  RadioGroup,
+  Stack,
+  Radio,
   TabPanel,
   useColorModeValue,
   VStack,
@@ -65,8 +68,8 @@ const InsertItem = `
 `;
 
 const InsertPost = `
-  mutation ($post_items: jsonb, $title: String, $user_id: String, $subtitle: String, $created_at: timestamptz, $image: String) {
-    insert_posts(objects: {post_items: $post_items, title: $title, user_id: $user_id, subtitle: $subtitle, created_at: $created_at, image: $image}) {
+  mutation ($post_items: jsonb, $title: String, $user_id: String, $subtitle: String, $created_at: timestamptz, $image: String, $is_public: Boolean = false) {
+    insert_posts(objects: {post_items: $post_items, title: $title, user_id: $user_id, subtitle: $subtitle, created_at: $created_at, image: $image, is_public: $is_public}) {
       returning {
         id
         post_items
@@ -202,6 +205,9 @@ const NewPost = () => {
   const [, updateItem] = useMutation(UpdateItemValue);
   const [url, setUrl] = useState<string | null>(null);
   const [postItems, setPostItems] = useState<PostItem[]>([]);
+
+  const [radioValue, setRadioValue] = React.useState<ReactText>("true");
+
   console.log("url here", url);
   console.log("insertPostResult", insertPostResult);
 
@@ -249,8 +255,9 @@ const NewPost = () => {
   }
 
   const onSubmit = async (values: any) => {
+    console.log("on submit", values);
     const { title, subtitle } = values;
-    console.log("on submit", url);
+
     insertPost({
       title,
       subtitle,
@@ -258,6 +265,7 @@ const NewPost = () => {
       post_items: postItemIds,
       created_at: moment(),
       image: url,
+      is_public: radioValue === "true",
     });
   };
 
@@ -304,7 +312,7 @@ const NewPost = () => {
   return (
     <Container>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormControl isInvalid={errors.title} mt={10} mb={10}>
+        <FormControl isInvalid={errors.title} marginY={3}>
           <Heading m={6}>New Post</Heading>
           <FormLabel htmlFor="title">Title</FormLabel>
           <Input
@@ -315,43 +323,43 @@ const NewPost = () => {
             autoComplete="off"
           />
 
-          <Tabs variant="soft-rounded" colorScheme="teal" marginY={3}>
-            <TabList>
-              <Tab>Upload Image</Tab>
-              <Tab>Image URL</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                <ReactFilestack
-                  apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
-                  componentDisplayMode={{ type: "immediate" }}
-                  customRender={({ onPick }: any) => (
-                    <Button onClick={onPick}>Select Cover Image</Button>
-                  )}
-                  actionOptions={{
-                    accept: "image/*",
-                    allowManualRetry: true,
-                    fromSources: ["local_file_system"],
-                  }}
-                  onSuccess={onSelectCoverImage}
-                />
-              </TabPanel>
-              <TabPanel>
-                <Input
-                  placeholder="Image URL"
-                  ref={register({ validate: validateTitle })}
-                  autoComplete="off"
-                  onChange={(e) => setUrl(e.target.value)}
-                />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-
           <FormErrorMessage>
             {errors.title && errors.title.message}
           </FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={errors.title} mt={10} mb={10}>
+
+        <Tabs variant="soft-rounded" colorScheme="teal">
+          <TabList>
+            <Tab>Upload Image</Tab>
+            <Tab>Image URL</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <ReactFilestack
+                apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
+                componentDisplayMode={{ type: "immediate" }}
+                customRender={({ onPick }: any) => (
+                  <Button onClick={onPick}>Select Cover Image</Button>
+                )}
+                actionOptions={{
+                  accept: "image/*",
+                  allowManualRetry: true,
+                  fromSources: ["local_file_system"],
+                }}
+                onSuccess={onSelectCoverImage}
+              />
+            </TabPanel>
+            <TabPanel>
+              <Input
+                placeholder="Image URL"
+                autoComplete="off"
+                onChange={(e) => setUrl(e.target.value)}
+                name="imageurl"
+              />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+        <FormControl isInvalid={errors.title} marginY={3}>
           <FormLabel htmlFor="subtitle">Subtitle</FormLabel>
           <Input
             name="subtitle"
@@ -360,6 +368,13 @@ const NewPost = () => {
             autoComplete="off"
           />
         </FormControl>
+        <RadioGroup value={radioValue} onChange={(val) => setRadioValue(val)}>
+          <Stack spacing={4} direction="row">
+            <Radio value="true">Public</Radio>
+            <Radio value="false">Private</Radio>
+          </Stack>
+        </RadioGroup>
+
         {postItems?.map(({ value, id, type }: PostItem, idx: number) => {
           switch (type) {
             case ItemTypes.Text:
