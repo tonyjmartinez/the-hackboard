@@ -3,7 +3,7 @@ import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
 import Nav from "./components/Nav";
-import { ChakraProvider, Box } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./theme/theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 

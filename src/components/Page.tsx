@@ -1,8 +1,9 @@
-import React from "react";
-import Card from "./Card";
+import React, { lazy } from "react";
 import { useQuery } from "urql";
 import { Box, SkeletonCircle, SkeletonText } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+
+const Card = lazy(() => import("./Card"));
 
 const GetPosts = `
   query MyQuery {
