@@ -2,7 +2,6 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
-import Nav from "./components/Nav";
 import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./theme/theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
@@ -10,6 +9,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 const NewPost = lazy(() => import("./components/NewPost"));
 const Post = lazy(() => import("./components/Post"));
 const Page = lazy(() => import("./components/Page"));
+const Nav = lazy(() => import("./components/Nav"));
 
 const App = () => {
   const [accessToken, setAccessToken] = useState<string>("");
