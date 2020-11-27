@@ -23,7 +23,6 @@ const isLocalhost = Boolean(
 type Config = {
   onSuccess?: (registration: ServiceWorkerRegistration) => void;
   onUpdate?: (registration: ServiceWorkerRegistration) => void;
-  maximumFileSizeToCacheInBytes: number;
 };
 
 export function register(config?: Config) {

@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
 import Nav from "./components/Nav";
 import { ChakraProvider, Box } from "@chakra-ui/react";
 import theme from "./theme/theme";
-import Page from "./components/Page";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import NewPost from "./components/NewPost";
-import Post from "./components/Post";
+
+const NewPost = lazy(() => import("./components/NewPost"));
+const Post = lazy(() => import("./components/Post"));
+const Page = lazy(() => import("./components/Page"));
 
 const App = () => {
   const [accessToken, setAccessToken] = useState<string>("");
@@ -42,20 +43,14 @@ const App = () => {
     <Provider value={client}>
       <ChakraProvider theme={theme}>
         <Router>
-          <Switch>
-            <Route path="/new">
-              <Box mb={90}>
-                <NewPost />
-              </Box>
-            </Route>
-            <Route path="/posts/:id" children={<Post />} />
-            <Route path="/">
-              <Box mb={90}>
-                <Page />
-              </Box>
-            </Route>
-          </Switch>
-          <Nav />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Switch>
+              <Route component={NewPost} path="/new" />
+              <Route path="/posts/:id" children={<Post />} />
+              <Route component={Page} path="/" />
+            </Switch>
+            <Nav />
+          </Suspense>
         </Router>
       </ChakraProvider>
     </Provider>
