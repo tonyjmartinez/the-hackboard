@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import React from "react";
-import { Sun, Moon, PlusCircle } from "phosphor-react";
+import { FiSun, FiMoon, FiPlusCircle } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
 const Nav = () => {
@@ -44,7 +44,7 @@ const Nav = () => {
                   colorScheme={buttonIconColor}
                   aria-label="new post"
                   variant="solid"
-                  icon={<PlusCircle size={40} color={iconColor} />}
+                  icon={<FiPlusCircle size={40} color={iconColor} />}
                 />
               </Link>
 
@@ -67,9 +67,9 @@ const Nav = () => {
             aria-label="Dark Mode toggle"
             icon={
               isLight ? (
-                <Moon size={40} color={iconColor} />
+                <FiMoon size={40} color={iconColor} />
               ) : (
-                <Sun size={40} color={iconColor} />
+                <FiSun size={40} color={iconColor} />
               )
             }
           />

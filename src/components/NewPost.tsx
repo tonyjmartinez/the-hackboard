@@ -39,14 +39,14 @@ import {
 import { useMutation } from "urql";
 
 import {
-  Text as TextIcon,
-  Image as ImageIcon,
-  Article,
-  Code,
-  CheckCircle,
-  XCircle,
-  Pencil,
-} from "phosphor-react";
+  FiEdit,
+  FiImage,
+  FiFileText,
+  FiCode,
+  FiCheckCircle,
+  FiXCircle,
+  FiEdit2,
+} from "react-icons/fi";
 import { useAuth0 } from "@auth0/auth0-react";
 
 type PostItemBtnProps = {
@@ -118,17 +118,21 @@ const EditableArea = ({
       <ButtonGroup justifyContent="center" size="sm">
         <IconButton
           aria-label="submit"
-          icon={<CheckCircle />}
+          icon={<FiCheckCircle />}
           onClick={onSubmit}
         />
-        <IconButton aria-label="cancel" icon={<XCircle />} onClick={onCancel} />
+        <IconButton
+          aria-label="cancel"
+          icon={<FiXCircle />}
+          onClick={onCancel}
+        />
       </ButtonGroup>
     ) : (
       <Flex justifyContent="center">
         <IconButton
           aria-label="edit"
           size="sm"
-          icon={<Pencil />}
+          icon={<FiEdit2 />}
           onClick={onEdit}
         />
       </Flex>
@@ -427,7 +431,7 @@ const NewPost = () => {
       <SimpleGrid columns={2} spacing={10} mt={6}>
         <PostItemBtn
           text="Text"
-          icon={TextIcon}
+          icon={FiEdit}
           onClick={() => setShowTextArea(true)}
         />
 
@@ -435,7 +439,7 @@ const NewPost = () => {
           apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
           componentDisplayMode={{ type: "immediate" }}
           customRender={({ onPick }: any) => (
-            <PostItemBtn text="Image" icon={ImageIcon} onClick={onPick} />
+            <PostItemBtn text="Image" icon={FiImage} onClick={onPick} />
           )}
           actionOptions={{
             // displayMode: "inline",
@@ -448,8 +452,8 @@ const NewPost = () => {
           onSuccess={onFileUpload}
         />
 
-        <PostItemBtn text="Markdown" icon={Article} />
-        <PostItemBtn text="Code Snippet" icon={Code} />
+        <PostItemBtn text="Markdown" icon={FiFileText} />
+        <PostItemBtn text="Code Snippet" icon={FiCode} />
       </SimpleGrid>
     </Container>
   );
