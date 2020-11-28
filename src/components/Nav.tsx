@@ -21,10 +21,9 @@ const Nav = () => {
   const isLight = colorMode === "light";
 
   const theme = useTheme();
-  const darkBlue = useColorModeValue("gray", theme.colors.blue[800]);
 
   const buttonIconColor = useColorModeValue("cyan", "teal");
-  const iconColor = useColorModeValue("white", darkBlue);
+  const iconColor = useColorModeValue("white", theme.colors.blue[800]);
 
   return (
     <Box pos="fixed" bottom="0" w="100%">
@@ -34,9 +33,8 @@ const Nav = () => {
             <Link to="/">The Hackboard</Link>
           </Heading>
         </Center>
-
         <Spacer />
-        <Box p="3" bg="blue.400">
+        <Box p="3" bg="blue.600">
           {isAuthenticated ? (
             <>
               <Link to="/new">
@@ -44,7 +42,7 @@ const Nav = () => {
                   colorScheme={buttonIconColor}
                   aria-label="new post"
                   variant="solid"
-                  icon={<FiPlusCircle size={40} color={iconColor} />}
+                  icon={<FiPlusCircle size={30} color={iconColor} />}
                 />
               </Link>
 
@@ -67,9 +65,9 @@ const Nav = () => {
             aria-label="Dark Mode toggle"
             icon={
               isLight ? (
-                <FiMoon size={40} color={iconColor} />
+                <FiMoon size={30} color={iconColor} />
               ) : (
-                <FiSun size={40} color={iconColor} />
+                <FiSun size={30} color={iconColor} />
               )
             }
           />

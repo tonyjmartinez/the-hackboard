@@ -1,4 +1,12 @@
-import { VStack, Image, Heading, Box, Text } from "@chakra-ui/react";
+import {
+  VStack,
+  Image,
+  Heading,
+  Center,
+  Box,
+  Text,
+  AspectRatio,
+} from "@chakra-ui/react";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "urql";
@@ -37,10 +45,11 @@ const Post = () => {
             <Box key={idx} m="auto" mt={20} w="80%" textAlign="left">
               <VStack spacing={7} align="start">
                 {image && (
-                  // TODO: Bug with aspect ratio?
-                  // <AspectRatio ratio={16 / 9}>
-                  <Image src={image} />
-                  // </AspectRatio>
+                  <Center w="100%">
+                    <AspectRatio ratio={16 / 9} w={["80%", "80%", "60%"]}>
+                      <Image src={image} />
+                    </AspectRatio>
+                  </Center>
                 )}
 
                 <Heading>{title}</Heading>

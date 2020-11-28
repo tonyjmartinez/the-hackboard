@@ -209,7 +209,6 @@ const NewPost = () => {
   const [, updateItem] = useMutation(UpdateItemValue);
   const [url, setUrl] = useState<string | null>(null);
   const [postItems, setPostItems] = useState<PostItem[]>([]);
-
   const [radioValue, setRadioValue] = React.useState<ReactText>("true");
 
   console.log("url here", url);
@@ -405,18 +404,6 @@ const NewPost = () => {
           />
         )}
         {showImageUpload && <ImageUploader />}
-
-        {/* {showTextArea && (
-          <FormControl isInvalid={errors.text}>
-            <Textarea
-              name="text"
-              ref={register({ validate: validateTitle })}
-              mt={6}
-              onBlur={sendContent}
-            />
-          </FormControl>
-        )} */}
-
         <Button
           mt={4}
           isLoading={insertPostResult.fetching}
