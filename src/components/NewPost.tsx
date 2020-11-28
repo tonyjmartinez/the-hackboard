@@ -35,6 +35,7 @@ import {
   EditablePreview,
   Flex,
   IconButton,
+  Portal,
 } from "@chakra-ui/react";
 import { useMutation } from "urql";
 
@@ -210,6 +211,7 @@ const NewPost = () => {
   const [url, setUrl] = useState<string | null>(null);
   const [postItems, setPostItems] = useState<PostItem[]>([]);
   const [radioValue, setRadioValue] = React.useState<ReactText>("true");
+  const [editing, setEditing] = useState<null | ItemTypes>(null);
 
   console.log("url here", url);
   console.log("insertPostResult", insertPostResult);
@@ -220,6 +222,12 @@ const NewPost = () => {
 
   const onFileUpload = (response: any) => {
     sendItem(thumbnail(response.filesUploaded[0].url), ItemTypes.Image);
+    setEditing(null);
+  };
+
+  const onUrlSubmit = (val: string) => {
+    sendItem(val, ItemTypes.Image);
+    setEditing(null);
   };
 
   const onSelectCoverImage = (response: any) => {
@@ -239,6 +247,7 @@ const NewPost = () => {
       }
       if (type === ItemTypes.Image) {
         setShowImageUpload(false);
+        setEditing(null);
       }
     }
   }, [insertItemResult]);
@@ -312,6 +321,73 @@ const NewPost = () => {
     );
   };
 
+  // {() => {
+  //   switch (editing) {
+  //     case ItemTypes.Text:
+  //       return (
+  //         <EditableArea
+  //           onSubmit={onTextItemSubmit}
+  //           isSubmitting={insertItemResult.fetching}
+  //         />
+  //       );
+  //     default:
+  //       return <div>...</div>;
+  //   }
+  // }}
+
+  const EditingComponent = () => {
+    switch (editing) {
+      case ItemTypes.Text:
+        return (
+          <EditableArea
+            onSubmit={onTextItemSubmit}
+            isSubmitting={insertItemResult.fetching}
+          />
+        );
+      case ItemTypes.Image:
+        return (
+          <Tabs variant="soft-rounded" colorScheme="teal">
+            <TabList>
+              <Tab>Upload Image</Tab>
+              <Tab>Image URL</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <ReactFilestack
+                  apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
+                  componentDisplayMode={{ type: "immediate" }}
+                  customRender={({ onPick }: any) => (
+                    <Button onClick={onPick}>Select Cover Image</Button>
+                  )}
+                  actionOptions={{
+                    accept: "image/*",
+                    allowManualRetry: true,
+                    fromSources: ["local_file_system"],
+                  }}
+                  onSuccess={onFileUpload}
+                />
+              </TabPanel>
+              <TabPanel>
+                <EditableArea
+                  onSubmit={onUrlSubmit}
+                  isSubmitting={insertItemResult.fetching}
+                />
+                {/* <Input
+                  placeholder="Image URL"
+                  autoComplete="off"
+                  onChange={(e) => setUrl(e.target.value)}
+                  name="imageurl"
+                /> */}
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <Container>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -371,7 +447,11 @@ const NewPost = () => {
             autoComplete="off"
           />
         </FormControl>
-        <RadioGroup value={radioValue} onChange={(val) => setRadioValue(val)}>
+        <RadioGroup
+          value={radioValue}
+          onChange={(val) => setRadioValue(val)}
+          mb={3}
+        >
           <Stack spacing={4} direction="row">
             <Radio value="true">Public</Radio>
             <Radio value="false">Private</Radio>
@@ -394,15 +474,17 @@ const NewPost = () => {
             case ItemTypes.Image:
               return <Image src={value} />;
             default:
-              return <div>Oops</div>;
+              return null;
           }
         })}
-        {showTextArea && (
+        <EditingComponent />
+
+        {/* {showTextArea && (
           <EditableArea
             onSubmit={onTextItemSubmit}
             isSubmitting={insertItemResult.fetching}
           />
-        )}
+        )} */}
         {showImageUpload && <ImageUploader />}
         <Button
           mt={4}
@@ -419,10 +501,16 @@ const NewPost = () => {
         <PostItemBtn
           text="Text"
           icon={FiEdit}
-          onClick={() => setShowTextArea(true)}
+          // onClick={() => setShowTextArea(true)}
+          onClick={() => setEditing(ItemTypes.Text)}
+        />
+        <PostItemBtn
+          text="Image"
+          icon={FiImage}
+          onClick={() => setEditing(ItemTypes.Image)}
         />
 
-        <ReactFilestack
+        {/* <ReactFilestack
           apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
           componentDisplayMode={{ type: "immediate" }}
           customRender={({ onPick }: any) => (
@@ -437,7 +525,7 @@ const NewPost = () => {
             fromSources: ["local_file_system"],
           }}
           onSuccess={onFileUpload}
-        />
+        /> */}
 
         <PostItemBtn text="Markdown" icon={FiFileText} />
         <PostItemBtn text="Code Snippet" icon={FiCode} />
