@@ -57,8 +57,8 @@ type PostItemBtnProps = {
 };
 
 const InsertItem = `
-  mutation ($value: String!, $userid: String!, $type: String!) {
-    insert_items(objects: {value: $value, user_id: $userid, type: $type}) {
+  mutation ($value: String!, $userid: String!, $type: String!, $is_public: Boolean = false) {
+    insert_items(objects: {value: $value, user_id: $userid, type: $type, is_public: $is_public}) {
       returning {
         value
         id
@@ -213,11 +213,6 @@ const NewPost = () => {
   const [radioValue, setRadioValue] = React.useState<ReactText>("true");
   const [editing, setEditing] = useState<null | ItemTypes>(null);
 
-  console.log("url here", url);
-  console.log("insertPostResult", insertPostResult);
-
-  console.log("post items", postItems);
-
   const { user } = useAuth0();
 
   const onFileUpload = (response: any) => {
@@ -253,7 +248,12 @@ const NewPost = () => {
   }, [insertItemResult]);
 
   const sendItem = (value: string, type: string) => {
-    insertItem({ value, userid: user.sub, type });
+    insertItem({
+      value,
+      userid: user.sub,
+      type,
+      is_public: radioValue === "true",
+    });
   };
   const sendUpdateItem = (value: string, id: number) => {
     updateItem({ value, id });
@@ -469,10 +469,11 @@ const NewPost = () => {
                   }}
                   defaultValue={value}
                   startWithEditView={false}
+                  key={id}
                 />
               );
             case ItemTypes.Image:
-              return <Image src={value} />;
+              return <Image key={id} src={value} />;
             default:
               return null;
           }
