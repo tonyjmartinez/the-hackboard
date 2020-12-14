@@ -1,8 +1,11 @@
 import { useForm } from "react-hook-form";
-import React, { useEffect, useState, ReactText } from "react";
+import React, { useEffect, useState, ReactText, ReactNode } from "react";
 import moment from "moment";
 import { ItemTypes } from "../util/enums";
 import ReactFilestack from "filestack-react";
+import ReactMde from "react-mde";
+import * as Showdown from "showdown";
+import "react-mde/lib/styles/css/react-mde-all.css";
 import {
   FormErrorMessage,
   Center,
@@ -35,7 +38,6 @@ import {
   EditablePreview,
   Flex,
   IconButton,
-  Portal,
 } from "@chakra-ui/react";
 import { useMutation } from "urql";
 
@@ -103,6 +105,24 @@ interface EditableAreaProps {
   defaultValue?: string;
 }
 
+const converter = new Showdown.Converter({
+  tables: true,
+  simplifiedAutoLink: true,
+  strikethrough: true,
+  tasklists: true,
+});
+
+const StyledBox = ({ children }: { children: ReactNode }) => {
+  const theme = useTheme();
+  const borderColor = useColorModeValue("gray", theme.colors.blue[500]);
+
+  return (
+    <Box border={`2px solid ${borderColor}`} borderRadius="5px" p={3}>
+      {children}
+    </Box>
+  );
+};
+
 const EditableArea = ({
   onChange,
   onSubmit,
@@ -111,8 +131,6 @@ const EditableArea = ({
   placeholder = "",
   defaultValue = "",
 }: EditableAreaProps) => {
-  const theme = useTheme();
-  const borderColor = useColorModeValue("gray", theme.colors.blue[500]);
   /* Here's a custom control */
   function EditableControls({ isEditing, onSubmit, onCancel, onEdit }: any) {
     return isEditing ? (
@@ -153,12 +171,12 @@ const EditableArea = ({
       onSubmit={onSubmit}
     >
       {(props) => (
-        <Box border={`2px solid ${borderColor}`} borderRadius="5px" p={3}>
+        <>
           <FormLabel>{isSubmitting ? "Loading..." : "Text Content"}</FormLabel>
           <EditablePreview />
           <EditableInput as={Textarea} />
           <EditableControls {...props} />
-        </Box>
+        </>
       )}
     </Editable>
   );
@@ -212,6 +230,10 @@ const NewPost = () => {
   const [postItems, setPostItems] = useState<PostItem[]>([]);
   const [radioValue, setRadioValue] = React.useState<ReactText>("true");
   const [editing, setEditing] = useState<null | ItemTypes>(null);
+  const [markdown, setMarkdown] = React.useState("**Hello world!!!**");
+  const [selectedTab, setSelectedTab] = React.useState<"write" | "preview">(
+    "write"
+  );
 
   const { user } = useAuth0();
 
@@ -340,47 +362,64 @@ const NewPost = () => {
       case ItemTypes.Text:
         return (
           <EditableArea
+            key="editable"
             onSubmit={onTextItemSubmit}
             isSubmitting={insertItemResult.fetching}
           />
         );
+      case ItemTypes.Markdown:
+        return (
+          <ReactMde
+            key="mde"
+            value={markdown}
+            onChange={setMarkdown}
+            selectedTab={selectedTab}
+            onTabChange={setSelectedTab}
+            generateMarkdownPreview={(markdown) =>
+              Promise.resolve(converter.makeHtml(markdown))
+            }
+          />
+        );
       case ItemTypes.Image:
         return (
-          <Tabs variant="soft-rounded" colorScheme="teal">
-            <TabList>
-              <Tab>Upload Image</Tab>
-              <Tab>Image URL</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                <ReactFilestack
-                  apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
-                  componentDisplayMode={{ type: "immediate" }}
-                  customRender={({ onPick }: any) => (
-                    <Button onClick={onPick}>Select Cover Image</Button>
-                  )}
-                  actionOptions={{
-                    accept: "image/*",
-                    allowManualRetry: true,
-                    fromSources: ["local_file_system"],
-                  }}
-                  onSuccess={onFileUpload}
-                />
-              </TabPanel>
-              <TabPanel>
-                <EditableArea
-                  onSubmit={onUrlSubmit}
-                  isSubmitting={insertItemResult.fetching}
-                />
-                {/* <Input
+          <>
+            <FormLabel mb={6}>Image Content</FormLabel>
+            <Tabs variant="soft-rounded" colorScheme="teal">
+              <TabList>
+                <Tab>Upload Image</Tab>
+                <Tab>Image URL</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <ReactFilestack
+                    apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
+                    componentDisplayMode={{ type: "immediate" }}
+                    customRender={({ onPick }: any) => (
+                      <Button onClick={onPick}>Select Cover Image</Button>
+                    )}
+                    actionOptions={{
+                      accept: "image/*",
+                      allowManualRetry: true,
+                      fromSources: ["local_file_system"],
+                    }}
+                    onSuccess={onFileUpload}
+                  />
+                </TabPanel>
+                <TabPanel>
+                  <EditableArea
+                    onSubmit={onUrlSubmit}
+                    isSubmitting={insertItemResult.fetching}
+                  />
+                  {/* <Input
                   placeholder="Image URL"
                   autoComplete="off"
                   onChange={(e) => setUrl(e.target.value)}
                   name="imageurl"
                 /> */}
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </>
         );
 
       default:
@@ -450,7 +489,7 @@ const NewPost = () => {
         <RadioGroup
           value={radioValue}
           onChange={(val) => setRadioValue(val)}
-          mb={3}
+          mb={6}
         >
           <Stack spacing={4} direction="row">
             <Radio value="true">Public</Radio>
@@ -478,7 +517,12 @@ const NewPost = () => {
               return null;
           }
         })}
-        <EditingComponent />
+        {editing && (
+          <StyledBox>
+            <FormLabel color="blue.500">New Content</FormLabel>
+            <EditingComponent />
+          </StyledBox>
+        )}
 
         {/* {showTextArea && (
           <EditableArea
@@ -528,7 +572,11 @@ const NewPost = () => {
           onSuccess={onFileUpload}
         /> */}
 
-        <PostItemBtn text="Markdown" icon={FiFileText} />
+        <PostItemBtn
+          text="Markdown"
+          icon={FiFileText}
+          onClick={() => setEditing(ItemTypes.Markdown)}
+        />
         <PostItemBtn text="Code Snippet" icon={FiCode} />
       </SimpleGrid>
     </Container>
