@@ -3,9 +3,8 @@ import React, { useEffect, useState, ReactText, ReactNode } from "react";
 import moment from "moment";
 import { ItemTypes } from "../util/enums";
 import ReactFilestack from "filestack-react";
-import ReactMde from "react-mde";
-import * as Showdown from "showdown";
-import "react-mde/lib/styles/css/react-mde-all.css";
+import MarkdownEditor from "./MarkdownEditor";
+
 import {
   FormErrorMessage,
   Center,
@@ -104,13 +103,6 @@ interface EditableAreaProps {
   placeholder?: string;
   defaultValue?: string;
 }
-
-const converter = new Showdown.Converter({
-  tables: true,
-  simplifiedAutoLink: true,
-  strikethrough: true,
-  tasklists: true,
-});
 
 const StyledBox = ({ children }: { children: ReactNode }) => {
   const theme = useTheme();
@@ -230,12 +222,11 @@ const NewPost = () => {
   const [postItems, setPostItems] = useState<PostItem[]>([]);
   const [radioValue, setRadioValue] = React.useState<ReactText>("true");
   const [editing, setEditing] = useState<null | ItemTypes>(null);
-  const [markdown, setMarkdown] = React.useState("**Hello world!!!**");
-  const [selectedTab, setSelectedTab] = React.useState<"write" | "preview">(
-    "write"
-  );
+  const [markdown, setMarkdown] = useState("");
 
   const { user } = useAuth0();
+
+  console.log("insertPostResult", insertPostResult);
 
   const onFileUpload = (response: any) => {
     sendItem(thumbnail(response.filesUploaded[0].url), ItemTypes.Image);
@@ -253,6 +244,7 @@ const NewPost = () => {
 
   useEffect(() => {
     const newItem = insertItemResult?.data?.insert_items?.returning[0];
+    console.log("new?", insertItemResult);
 
     if (newItem) {
       const { value, id, type } = newItem;
@@ -357,7 +349,7 @@ const NewPost = () => {
   //   }
   // }}
 
-  const EditingComponent = () => {
+  const renderEditingComponent = (editing: any) => {
     switch (editing) {
       case ItemTypes.Text:
         return (
@@ -369,15 +361,10 @@ const NewPost = () => {
         );
       case ItemTypes.Markdown:
         return (
-          <ReactMde
-            key="mde"
+          <MarkdownEditor
+            key="markdown"
             value={markdown}
-            onChange={setMarkdown}
-            selectedTab={selectedTab}
-            onTabChange={setSelectedTab}
-            generateMarkdownPreview={(markdown) =>
-              Promise.resolve(converter.makeHtml(markdown))
-            }
+            setValue={setMarkdown}
           />
         );
       case ItemTypes.Image:
@@ -520,7 +507,8 @@ const NewPost = () => {
         {editing && (
           <StyledBox>
             <FormLabel color="blue.500">New Content</FormLabel>
-            <EditingComponent />
+            {/* <EditingComponent key="editing" /> */}
+            {renderEditingComponent(editing)}
           </StyledBox>
         )}
 

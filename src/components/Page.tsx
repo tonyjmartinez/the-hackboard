@@ -15,6 +15,7 @@ const GetPosts = `
       subtitle
       created_at
       image
+      is_public
     }
   }
 `;
