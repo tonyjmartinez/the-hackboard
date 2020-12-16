@@ -22,11 +22,13 @@ const Application = () => (
 
 const rootElement = document.getElementById("root");
 
-if (rootElement?.hasChildNodes()) {
-  hydrate(<Application />, rootElement);
-} else {
-  render(<Application />, rootElement);
-}
+render(<Application />, rootElement);
+
+// if (rootElement?.hasChildNodes()) {
+//   hydrate(<Application />, rootElement);
+// } else {
+//   render(<Application />, rootElement);
+// }
 
 serviceWorkerRegistration.register();
 
