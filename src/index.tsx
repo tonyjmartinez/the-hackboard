@@ -5,6 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import { Auth0Provider } from "@auth0/auth0-react";
+import { ColorModeScript } from "@chakra-ui/react";
 
 const Application = () => (
   <React.StrictMode>
@@ -15,6 +16,7 @@ const Application = () => (
       audience={process.env.REACT_APP_AUTH0_AUDIENCE}
       scope={process.env.REACT_APP_AUTH0_SCOPE}
     >
+      <ColorModeScript initialColorMode="dark" />
       <App />
     </Auth0Provider>
   </React.StrictMode>
