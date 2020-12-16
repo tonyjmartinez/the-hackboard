@@ -7,7 +7,7 @@ import Skeleton from "./Skeleton";
 const Card = lazy(() => import("./Card"));
 
 const GetPosts = `
-  query MyQuery {
+  query MyQuery @cached {
     posts(order_by: {created_at: desc}) {
       id
       post_items
