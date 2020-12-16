@@ -3,7 +3,6 @@ import { hydrate, render } from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { ColorModeScript } from "@chakra-ui/react";
 
