@@ -10,6 +10,7 @@ import {
   Center,
   useTheme,
   useColorModeValue,
+  Tooltip,
 } from "@chakra-ui/react";
 import React from "react";
 import { FiSun, FiMoon, FiPlusCircle } from "react-icons/fi";
@@ -38,12 +39,14 @@ const Nav = () => {
           {isAuthenticated ? (
             <>
               <Link to="/new">
-                <IconButton
-                  colorScheme={buttonIconColor}
-                  aria-label="new post"
-                  variant="solid"
-                  icon={<FiPlusCircle size={30} color={iconColor} />}
-                />
+                <Tooltip label="New Post">
+                  <IconButton
+                    colorScheme={buttonIconColor}
+                    aria-label="new post"
+                    variant="solid"
+                    icon={<FiPlusCircle size={30} color={iconColor} />}
+                  />
+                </Tooltip>
               </Link>
 
               <Button

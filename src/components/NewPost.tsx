@@ -13,6 +13,7 @@ import {
   Tab,
   TabList,
   TabPanels,
+  CloseButton,
   RadioGroup,
   Stack,
   Radio,
@@ -37,6 +38,10 @@ import {
   EditablePreview,
   Flex,
   IconButton,
+  BoxProps,
+  Divider,
+  HStack,
+  Spacer,
 } from "@chakra-ui/react";
 import { useMutation } from "urql";
 
@@ -95,15 +100,6 @@ const UpdateItemValue = `
   }
 `;
 
-interface EditableAreaProps {
-  onChange?: (e: any) => void;
-  onSubmit?: (e: any) => void;
-  isSubmitting?: boolean;
-  startWithEditView?: boolean;
-  placeholder?: string;
-  defaultValue?: string;
-}
-
 const StyledBox = ({ children }: { children: ReactNode }) => {
   const theme = useTheme();
   const borderColor = useColorModeValue("gray", theme.colors.blue[500]);
@@ -115,6 +111,15 @@ const StyledBox = ({ children }: { children: ReactNode }) => {
   );
 };
 
+interface EditableAreaProps extends BoxProps {
+  onChange?: (e: any) => void;
+  onSubmit?: (e: any) => void;
+  isSubmitting?: boolean;
+  startWithEditView?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
+}
+
 const EditableArea = ({
   onChange,
   onSubmit,
@@ -122,6 +127,7 @@ const EditableArea = ({
   startWithEditView = true,
   placeholder = "",
   defaultValue = "",
+  ...rest
 }: EditableAreaProps) => {
   /* Here's a custom control */
   function EditableControls({ isEditing, onSubmit, onCancel, onEdit }: any) {
@@ -161,6 +167,7 @@ const EditableArea = ({
       placeholder={placeholder}
       onChange={onChange}
       onSubmit={onSubmit}
+      {...rest}
     >
       {(props) => (
         <>
@@ -281,7 +288,6 @@ const NewPost = () => {
   }
 
   const onSubmit = async (values: any) => {
-    console.log("on submit", values);
     const { title, subtitle } = values;
 
     insertPost({
@@ -418,7 +424,20 @@ const NewPost = () => {
     <Container>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormControl isInvalid={errors.title} marginY={3}>
-          <Heading m={6}>New Post</Heading>
+          <HStack>
+            <Heading m={6}>New Post</Heading>
+            <Spacer />
+            <Button
+              mt={4}
+              isLoading={insertPostResult.fetching}
+              loadingText="Submitting"
+              colorScheme="teal"
+              type="submit"
+            >
+              Submit
+            </Button>
+          </HStack>
+
           <FormLabel htmlFor="title">Title</FormLabel>
           <Input
             name="title"
@@ -433,12 +452,21 @@ const NewPost = () => {
           </FormErrorMessage>
         </FormControl>
 
-        <Tabs variant="soft-rounded" colorScheme="teal">
+        <FormLabel htmlFor="coverImage">Cover Image</FormLabel>
+        <Tabs variant="soft-rounded" colorScheme="teal" name="coverImage">
           <TabList>
-            <Tab>Upload Image</Tab>
             <Tab>Image URL</Tab>
+            <Tab>Upload Image</Tab>
           </TabList>
           <TabPanels>
+            <TabPanel>
+              <Input
+                placeholder="Image URL"
+                autoComplete="off"
+                onChange={(e) => setUrl(e.target.value)}
+                name="imageurl"
+              />
+            </TabPanel>
             <TabPanel>
               <ReactFilestack
                 apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
@@ -452,14 +480,6 @@ const NewPost = () => {
                   fromSources: ["local_file_system"],
                 }}
                 onSuccess={onSelectCoverImage}
-              />
-            </TabPanel>
-            <TabPanel>
-              <Input
-                placeholder="Image URL"
-                autoComplete="off"
-                onChange={(e) => setUrl(e.target.value)}
-                name="imageurl"
               />
             </TabPanel>
           </TabPanels>
@@ -476,7 +496,7 @@ const NewPost = () => {
         <RadioGroup
           value={radioValue}
           onChange={(val) => setRadioValue(val)}
-          mb={6}
+          mb={12}
         >
           <Stack spacing={4} direction="row">
             <Radio value="true">Public</Radio>
@@ -488,22 +508,34 @@ const NewPost = () => {
           switch (type) {
             case ItemTypes.Text:
               return (
-                <EditableArea
-                  onSubmit={(val: string) => {
-                    console.log("submitted...", val);
-                    sendUpdateItem(val, id);
-                  }}
-                  defaultValue={value}
-                  startWithEditView={false}
-                  key={id}
-                />
+                <HStack>
+                  <EditableArea
+                    onSubmit={(val: string) => {
+                      sendUpdateItem(val, id);
+                    }}
+                    defaultValue={value}
+                    startWithEditView={false}
+                    key={id}
+                    mb={12}
+                  />
+                  <Spacer />
+                  <CloseButton />
+                </HStack>
               );
             case ItemTypes.Image:
-              return <Image key={id} src={value} />;
+              return (
+                <VStack>
+                  <FormLabel>Image Content</FormLabel>
+                  <Image key={id} src={value} mb={12} />
+                  <CloseButton />
+                </VStack>
+              );
+
             default:
               return null;
           }
         })}
+        <Divider />
         {editing && (
           <StyledBox>
             <FormLabel color="blue.500">New Content</FormLabel>
@@ -519,15 +551,6 @@ const NewPost = () => {
           />
         )} */}
         {showImageUpload && <ImageUploader />}
-        <Button
-          mt={4}
-          isLoading={insertPostResult.fetching}
-          loadingText="Submitting"
-          colorScheme="teal"
-          type="submit"
-        >
-          Submit
-        </Button>
       </form>
       <Heading m={6}>Add Content</Heading>
       <SimpleGrid columns={2} spacing={10} mt={6}>
