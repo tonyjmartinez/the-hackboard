@@ -2,7 +2,9 @@ import { useForm } from "react-hook-form";
 import React, { useEffect, useState, ReactText, ReactNode } from "react";
 import moment from "moment";
 import { ItemTypes } from "../util/enums";
+import { List, arrayMove } from "react-movable";
 import ReactFilestack from "filestack-react";
+
 import MarkdownEditor from "./MarkdownEditor";
 
 import {
@@ -42,6 +44,8 @@ import {
   Divider,
   HStack,
   Spacer,
+  InputProps,
+  TextareaProps,
 } from "@chakra-ui/react";
 import { useMutation } from "urql";
 
@@ -55,6 +59,7 @@ import {
   FiEdit2,
 } from "react-icons/fi";
 import { useAuth0 } from "@auth0/auth0-react";
+import { ReactComponent } from "*.svg";
 
 type PostItemBtnProps = {
   text?: string;
@@ -117,7 +122,7 @@ interface EditableAreaProps extends BoxProps {
   isSubmitting?: boolean;
   startWithEditView?: boolean;
   placeholder?: string;
-  defaultValue?: string;
+  defaultValue: string;
 }
 
 const EditableArea = ({
@@ -126,7 +131,7 @@ const EditableArea = ({
   isSubmitting = false,
   startWithEditView = true,
   placeholder = "",
-  defaultValue = "",
+  defaultValue,
   ...rest
 }: EditableAreaProps) => {
   /* Here's a custom control */
@@ -216,9 +221,59 @@ type PostItem = {
   type: string;
 };
 
+const PostItemWrapper = ({ children, ...props }: any) => (
+  <HStack {...props}>
+    {children}
+    <Spacer />
+    <CloseButton />
+  </HStack>
+);
+
+export interface EditableTextProps extends InputProps {
+  isEditing?: boolean;
+  textValue: string;
+}
+
+const EditableText = ({
+  isEditing,
+  textValue,
+  ...props
+}: EditableTextProps) => {
+  interface TextInputProps extends TextareaProps {
+    defaultValue: string;
+  }
+  const TextInput = ({ defaultValue }: TextInputProps) => {
+    const [inputValue, setInputValue] = React.useState(defaultValue ?? "");
+
+    let handleInputChange = (e: any) => {
+      const inputValue = e.target.value;
+      setInputValue(inputValue);
+    };
+    return (
+      <Textarea
+        value={inputValue}
+        onChange={handleInputChange}
+        placeholder="Here is a sample placeholder"
+        size="sm"
+      />
+    );
+  };
+  if (isEditing) {
+    return (
+      <PostItemWrapper {...props}>
+        <TextInput defaultValue={textValue} />
+      </PostItemWrapper>
+    );
+  }
+  return (
+    <PostItemWrapper {...props}>
+      <Text>{textValue}</Text>
+    </PostItemWrapper>
+  );
+};
+
 const NewPost = () => {
   const { handleSubmit, errors, register } = useForm();
-  const [showTextArea, setShowTextArea] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [postItemIds, setPostItemIds] = useState<number[]>([]);
   const [, setSubmittedTextId] = useState(-1);
@@ -230,6 +285,8 @@ const NewPost = () => {
   const [radioValue, setRadioValue] = React.useState<ReactText>("true");
   const [editing, setEditing] = useState<null | ItemTypes>(null);
   const [markdown, setMarkdown] = useState("");
+
+  console.log("ids?", postItemIds);
 
   const { user } = useAuth0();
 
@@ -259,7 +316,6 @@ const NewPost = () => {
       setPostItems((oldItems) => [...oldItems, { value, id, type }]);
       setSubmittedTextId(newItem.id);
       if (type === ItemTypes.Text) {
-        setShowTextArea(false);
       }
       if (type === ItemTypes.Image) {
         setShowImageUpload(false);
@@ -363,6 +419,7 @@ const NewPost = () => {
             key="editable"
             onSubmit={onTextItemSubmit}
             isSubmitting={insertItemResult.fetching}
+            defaultValue=""
           />
         );
       case ItemTypes.Markdown:
@@ -402,6 +459,7 @@ const NewPost = () => {
                   <EditableArea
                     onSubmit={onUrlSubmit}
                     isSubmitting={insertItemResult.fetching}
+                    defaultValue=""
                   />
                   {/* <Input
                   placeholder="Image URL"
@@ -503,8 +561,39 @@ const NewPost = () => {
             <Radio value="false">Private</Radio>
           </Stack>
         </RadioGroup>
+        <List
+          values={postItems}
+          onChange={({ oldIndex, newIndex }) => {
+            setPostItems(arrayMove(postItems, oldIndex, newIndex));
+            setPostItemIds(arrayMove(postItemIds, oldIndex, newIndex));
+          }}
+          renderList={({ children, props }) => <Box {...props}>{children}</Box>}
+          renderItem={({ value, props, index }) => {
+            const { value: val, id, type } = value;
+            console.log("render value.", val);
+            switch (type) {
+              case ItemTypes.Text:
+                return (
+                  <Box {...props}>
+                    <EditableText textValue={val} key={index} isEditing />
+                  </Box>
+                );
+              case ItemTypes.Image:
+                return (
+                  <VStack key={index} {...props}>
+                    <FormLabel>Image Content</FormLabel>
+                    <Image src={val} mb={12} />
+                    <CloseButton />
+                  </VStack>
+                );
 
-        {postItems?.map(({ value, id, type }: PostItem, idx: number) => {
+              default:
+                return null;
+            }
+          }}
+        />
+
+        {/* {postItems?.map(({ value, id, type }: PostItem, idx: number) => {
           switch (type) {
             case ItemTypes.Text:
               return (
@@ -534,7 +623,7 @@ const NewPost = () => {
             default:
               return null;
           }
-        })}
+        })} */}
         <Divider />
         {editing && (
           <StyledBox>
@@ -544,12 +633,6 @@ const NewPost = () => {
           </StyledBox>
         )}
 
-        {/* {showTextArea && (
-          <EditableArea
-            onSubmit={onTextItemSubmit}
-            isSubmitting={insertItemResult.fetching}
-          />
-        )} */}
         {showImageUpload && <ImageUploader />}
       </form>
       <Heading m={6}>Add Content</Heading>
@@ -557,7 +640,6 @@ const NewPost = () => {
         <PostItemBtn
           text="Text"
           icon={FiEdit}
-          // onClick={() => setShowTextArea(true)}
           onClick={() => setEditing(ItemTypes.Text)}
         />
         <PostItemBtn

@@ -32,13 +32,16 @@ interface ParamType {
 const Post = () => {
   const { id } = useParams<ParamType>();
 
-  const [result] = useQuery({ query: GetPost, variables: { id } });
+  const [result] = useQuery({
+    query: GetPost,
+    variables: { id: parseInt(id) },
+  });
 
   if (result.fetching) return <div>Loading...</div>;
 
   return (
     <>
-      {result.data.posts.map(
+      {result.data?.posts?.map(
         ({ title, subtitle, post_items, image }: any, idx: number) => {
           console.log("image", image);
           return (
