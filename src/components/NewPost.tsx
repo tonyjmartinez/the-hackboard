@@ -57,6 +57,7 @@ import {
   FiCheckCircle,
   FiXCircle,
   FiEdit2,
+  FiX,
 } from "react-icons/fi";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ReactComponent } from "*.svg";
@@ -222,52 +223,60 @@ type PostItem = {
 };
 
 const PostItemWrapper = ({ children, ...props }: any) => (
-  <HStack {...props}>
-    {children}
-    <Spacer />
-    <CloseButton />
-  </HStack>
+  <HStack {...props}>{children}</HStack>
 );
 
 export interface EditableTextProps extends InputProps {
   isEditing?: boolean;
   textValue: string;
+  onTextSubmit?: (val: string) => void;
+}
+interface TextInputProps extends TextareaProps {
+  inputValue: string;
+  setInputValue: any;
 }
 
-const EditableText = ({
-  isEditing,
-  textValue,
-  ...props
-}: EditableTextProps) => {
-  interface TextInputProps extends TextareaProps {
-    defaultValue: string;
-  }
-  const TextInput = ({ defaultValue }: TextInputProps) => {
-    const [inputValue, setInputValue] = React.useState(defaultValue ?? "");
+const EditableText = ({ textValue, onTextSubmit }: EditableTextProps) => {
+  const [inputValue, setInputValue] = React.useState(textValue ?? "");
+  const [editing, setEditing] = useState(false);
 
-    let handleInputChange = (e: any) => {
-      const inputValue = e.target.value;
-      setInputValue(inputValue);
-    };
+  console.log("rerender...");
+  if (editing) {
     return (
-      <Textarea
-        value={inputValue}
-        onChange={handleInputChange}
-        placeholder="Here is a sample placeholder"
-        size="sm"
-      />
-    );
-  };
-  if (isEditing) {
-    return (
-      <PostItemWrapper {...props}>
-        <TextInput defaultValue={textValue} />
+      <PostItemWrapper>
+        <Textarea
+          value={inputValue}
+          onChange={(e) => {
+            e.preventDefault();
+            setInputValue(e.target.value);
+          }}
+          placeholder="Here is a sample placeholder"
+          size="sm"
+        />
+        <Spacer />
+        <IconButton
+          icon={<FiX />}
+          onClick={() => setEditing(!editing)}
+          aria-label="edit"
+        />
+
+        <IconButton
+          icon={<FiCheckCircle />}
+          onClick={() => onTextSubmit?.(inputValue)}
+          aria-label="submit-text"
+        />
       </PostItemWrapper>
     );
   }
   return (
-    <PostItemWrapper {...props}>
+    <PostItemWrapper>
       <Text>{textValue}</Text>
+      <Spacer />
+      <IconButton
+        icon={<FiEdit />}
+        onClick={() => setEditing(!editing)}
+        aria-label="edit"
+      />
     </PostItemWrapper>
   );
 };
@@ -561,39 +570,40 @@ const NewPost = () => {
             <Radio value="false">Private</Radio>
           </Stack>
         </RadioGroup>
-        <List
-          values={postItems}
-          onChange={({ oldIndex, newIndex }) => {
-            setPostItems(arrayMove(postItems, oldIndex, newIndex));
-            setPostItemIds(arrayMove(postItemIds, oldIndex, newIndex));
-          }}
-          renderList={({ children, props }) => <Box {...props}>{children}</Box>}
-          renderItem={({ value, props, index }) => {
-            const { value: val, id, type } = value;
-            console.log("render value.", val);
-            switch (type) {
-              case ItemTypes.Text:
-                return (
-                  <Box {...props}>
-                    <EditableText textValue={val} key={index} isEditing />
-                  </Box>
-                );
-              case ItemTypes.Image:
-                return (
-                  <VStack key={index} {...props}>
-                    <FormLabel>Image Content</FormLabel>
-                    <Image src={val} mb={12} />
-                    <CloseButton />
-                  </VStack>
-                );
+      </form>
+      <List
+        values={postItems}
+        onChange={({ oldIndex, newIndex }) => {
+          setPostItems(arrayMove(postItems, oldIndex, newIndex));
+          setPostItemIds(arrayMove(postItemIds, oldIndex, newIndex));
+        }}
+        renderList={({ children, props }) => <Box {...props}>{children}</Box>}
+        renderItem={({ value, props, index }) => {
+          const { value: val, id, type } = value;
+          console.log("render value.", val);
+          switch (type) {
+            case ItemTypes.Text:
+              return (
+                <Box key={index} {...props}>
+                  <EditableText textValue={val} isEditing />
+                </Box>
+              );
+            case ItemTypes.Image:
+              return (
+                <VStack key={index} {...props}>
+                  <FormLabel>Image Content</FormLabel>
+                  <Image src={val} mb={12} />
+                  <CloseButton />
+                </VStack>
+              );
 
-              default:
-                return null;
-            }
-          }}
-        />
+            default:
+              return null;
+          }
+        }}
+      />
 
-        {/* {postItems?.map(({ value, id, type }: PostItem, idx: number) => {
+      {/* {postItems?.map(({ value, id, type }: PostItem, idx: number) => {
           switch (type) {
             case ItemTypes.Text:
               return (
@@ -624,17 +634,17 @@ const NewPost = () => {
               return null;
           }
         })} */}
-        <Divider />
-        {editing && (
-          <StyledBox>
-            <FormLabel color="blue.500">New Content</FormLabel>
-            {/* <EditingComponent key="editing" /> */}
-            {renderEditingComponent(editing)}
-          </StyledBox>
-        )}
+      <Divider />
+      {editing && (
+        <StyledBox>
+          <FormLabel color="blue.500">New Content</FormLabel>
+          {/* <EditingComponent key="editing" /> */}
+          {renderEditingComponent(editing)}
+        </StyledBox>
+      )}
 
-        {showImageUpload && <ImageUploader />}
-      </form>
+      {showImageUpload && <ImageUploader />}
+
       <Heading m={6}>Add Content</Heading>
       <SimpleGrid columns={2} spacing={10} mt={6}>
         <PostItemBtn
