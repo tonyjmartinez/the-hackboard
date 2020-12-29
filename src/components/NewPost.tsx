@@ -236,9 +236,13 @@ interface TextInputProps extends TextareaProps {
   setInputValue: any;
 }
 
-const EditableText = ({ textValue, onTextSubmit }: EditableTextProps) => {
+const EditableText = ({
+  textValue,
+  onTextSubmit,
+  isEditing = false,
+}: EditableTextProps) => {
   const [inputValue, setInputValue] = React.useState(textValue ?? "");
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(isEditing);
 
   console.log("rerender...");
   if (editing) {
@@ -250,7 +254,7 @@ const EditableText = ({ textValue, onTextSubmit }: EditableTextProps) => {
             e.preventDefault();
             setInputValue(e.target.value);
           }}
-          placeholder="Here is a sample placeholder"
+          placeholder="Text content"
           size="sm"
         />
         <Spacer />
@@ -424,12 +428,18 @@ const NewPost = () => {
     switch (editing) {
       case ItemTypes.Text:
         return (
-          <EditableArea
+          <EditableText
             key="editable"
-            onSubmit={onTextItemSubmit}
-            isSubmitting={insertItemResult.fetching}
-            defaultValue=""
+            textValue=""
+            onTextSubmit={onTextItemSubmit}
+            isEditing
           />
+          // <EditableArea
+          //   key="editable"
+          //   onSubmit={onTextItemSubmit}
+          //   isSubmitting={insertItemResult.fetching}
+          //   defaultValue=""
+          // />
         );
       case ItemTypes.Markdown:
         return (
@@ -585,7 +595,12 @@ const NewPost = () => {
             case ItemTypes.Text:
               return (
                 <Box key={index} {...props}>
-                  <EditableText textValue={val} isEditing />
+                  <EditableText
+                    textValue={val}
+                    onTextSubmit={(newVal: string) =>
+                      sendUpdateItem(newVal, id)
+                    }
+                  />
                 </Box>
               );
             case ItemTypes.Image:
