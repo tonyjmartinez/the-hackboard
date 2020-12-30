@@ -31,7 +31,7 @@ const PostContent = ({ itemId }: PostContentProps) => {
   // return <div>{result.data?.items[0].value}</div>;
   switch (type) {
     case ItemTypes.Text:
-      return <Text>{value}</Text>;
+      return <Text whiteSpace="pre-line">{value}</Text>;
     case ItemTypes.Image:
       return <Image src={value} />;
     default:

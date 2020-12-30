@@ -117,76 +117,6 @@ const StyledBox = ({ children }: { children: ReactNode }) => {
   );
 };
 
-interface EditableAreaProps extends BoxProps {
-  onChange?: (e: any) => void;
-  onSubmit?: (e: any) => void;
-  isSubmitting?: boolean;
-  startWithEditView?: boolean;
-  placeholder?: string;
-  defaultValue: string;
-}
-
-const EditableArea = ({
-  onChange,
-  onSubmit,
-  isSubmitting = false,
-  startWithEditView = true,
-  placeholder = "",
-  defaultValue,
-  ...rest
-}: EditableAreaProps) => {
-  /* Here's a custom control */
-  function EditableControls({ isEditing, onSubmit, onCancel, onEdit }: any) {
-    return isEditing ? (
-      <ButtonGroup justifyContent="center" size="sm">
-        <IconButton
-          aria-label="submit"
-          icon={<FiCheckCircle />}
-          onClick={onSubmit}
-        />
-        <IconButton
-          aria-label="cancel"
-          icon={<FiXCircle />}
-          onClick={onCancel}
-        />
-      </ButtonGroup>
-    ) : (
-      <Flex justifyContent="center">
-        <IconButton
-          aria-label="edit"
-          size="sm"
-          icon={<FiEdit2 />}
-          onClick={onEdit}
-        />
-      </Flex>
-    );
-  }
-
-  return (
-    <Editable
-      textAlign="center"
-      defaultValue={defaultValue}
-      fontSize="2xl"
-      isPreviewFocusable={false}
-      submitOnBlur={false}
-      startWithEditView={startWithEditView}
-      placeholder={placeholder}
-      onChange={onChange}
-      onSubmit={onSubmit}
-      {...rest}
-    >
-      {(props) => (
-        <>
-          <FormLabel>{isSubmitting ? "Loading..." : "Text Content"}</FormLabel>
-          <EditablePreview />
-          <EditableInput as={Textarea} />
-          <EditableControls {...props} />
-        </>
-      )}
-    </Editable>
-  );
-};
-
 const PostItemBtn = ({ text, icon, onClick }: PostItemBtnProps) => {
   const iconColor = useColorModeValue("black", "blue.500");
   const boxColor = useColorModeValue("gray.100", "blue.900");
@@ -230,6 +160,7 @@ export interface EditableTextProps extends InputProps {
   isEditing?: boolean;
   textValue: string;
   onTextSubmit?: (val: string) => void;
+  singleLine?: boolean;
 }
 interface TextInputProps extends TextareaProps {
   inputValue: string;
@@ -240,6 +171,7 @@ const EditableText = ({
   textValue,
   onTextSubmit,
   isEditing = false,
+  singleLine = false,
 }: EditableTextProps) => {
   const [inputValue, setInputValue] = React.useState(textValue ?? "");
   const [editing, setEditing] = useState(isEditing);
@@ -248,15 +180,28 @@ const EditableText = ({
   if (editing) {
     return (
       <PostItemWrapper>
-        <Textarea
-          value={inputValue}
-          onChange={(e) => {
-            e.preventDefault();
-            setInputValue(e.target.value);
-          }}
-          placeholder="Text content"
-          size="sm"
-        />
+        {singleLine ? (
+          <Input
+            value={inputValue}
+            onChange={(e) => {
+              e.preventDefault();
+              setInputValue(e.target.value);
+            }}
+            placeholder="Text content"
+            size="sm"
+          />
+        ) : (
+          <Textarea
+            value={inputValue}
+            onChange={(e) => {
+              e.preventDefault();
+              setInputValue(e.target.value);
+            }}
+            placeholder="Text content"
+            size="sm"
+          />
+        )}
+
         <Spacer />
         <IconButton
           icon={<FiX />}
@@ -274,7 +219,7 @@ const EditableText = ({
   }
   return (
     <PostItemWrapper>
-      <Text>{textValue}</Text>
+      <Text whiteSpace="pre-line">{textValue}</Text>
       <Spacer />
       <IconButton
         icon={<FiEdit />}
@@ -372,11 +317,6 @@ const NewPost = () => {
 
   const onTextItemSubmit = (text: string) => {
     sendItem(text, ItemTypes.Text);
-    // if (submittedTextId === -1) {
-    //   sendItem(text);
-    // } else if (submittedTextId > 0) {
-    //   sendUpdateItem(text, submittedTextId);
-    // }
   };
 
   const ImageUploader = () => {
@@ -389,40 +329,15 @@ const NewPost = () => {
             <Button onClick={onPick}>Upload</Button>
           )}
           actionOptions={{
-            // displayMode: "inline",
-            // container: "picker",
-
             accept: "image/*",
             allowManualRetry: true,
             fromSources: ["local_file_system"],
           }}
           onSuccess={onFileUpload}
         />
-        {/* <div
-          id="picker"
-          style={{
-            marginTop: "2rem",
-            height: "20rem",
-            marginBottom: "2em",
-          }}
-        ></div> */}
       </>
     );
   };
-
-  // {() => {
-  //   switch (editing) {
-  //     case ItemTypes.Text:
-  //       return (
-  //         <EditableArea
-  //           onSubmit={onTextItemSubmit}
-  //           isSubmitting={insertItemResult.fetching}
-  //         />
-  //       );
-  //     default:
-  //       return <div>...</div>;
-  //   }
-  // }}
 
   const renderEditingComponent = (editing: any) => {
     switch (editing) {
@@ -434,12 +349,6 @@ const NewPost = () => {
             onTextSubmit={onTextItemSubmit}
             isEditing
           />
-          // <EditableArea
-          //   key="editable"
-          //   onSubmit={onTextItemSubmit}
-          //   isSubmitting={insertItemResult.fetching}
-          //   defaultValue=""
-          // />
         );
       case ItemTypes.Markdown:
         return (
@@ -475,17 +384,12 @@ const NewPost = () => {
                   />
                 </TabPanel>
                 <TabPanel>
-                  <EditableArea
-                    onSubmit={onUrlSubmit}
-                    isSubmitting={insertItemResult.fetching}
-                    defaultValue=""
+                  <EditableText
+                    onTextSubmit={onUrlSubmit}
+                    textValue=""
+                    isEditing
+                    singleLine
                   />
-                  {/* <Input
-                  placeholder="Image URL"
-                  autoComplete="off"
-                  onChange={(e) => setUrl(e.target.value)}
-                  name="imageurl"
-                /> */}
                 </TabPanel>
               </TabPanels>
             </Tabs>
@@ -618,42 +522,10 @@ const NewPost = () => {
         }}
       />
 
-      {/* {postItems?.map(({ value, id, type }: PostItem, idx: number) => {
-          switch (type) {
-            case ItemTypes.Text:
-              return (
-                <HStack>
-                  <EditableArea
-                    onSubmit={(val: string) => {
-                      sendUpdateItem(val, id);
-                    }}
-                    defaultValue={value}
-                    startWithEditView={false}
-                    key={id}
-                    mb={12}
-                  />
-                  <Spacer />
-                  <CloseButton />
-                </HStack>
-              );
-            case ItemTypes.Image:
-              return (
-                <VStack>
-                  <FormLabel>Image Content</FormLabel>
-                  <Image key={id} src={value} mb={12} />
-                  <CloseButton />
-                </VStack>
-              );
-
-            default:
-              return null;
-          }
-        })} */}
       <Divider />
       {editing && (
         <StyledBox>
           <FormLabel color="blue.500">New Content</FormLabel>
-          {/* <EditingComponent key="editing" /> */}
           {renderEditingComponent(editing)}
         </StyledBox>
       )}
@@ -672,23 +544,6 @@ const NewPost = () => {
           icon={FiImage}
           onClick={() => setEditing(ItemTypes.Image)}
         />
-
-        {/* <ReactFilestack
-          apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
-          componentDisplayMode={{ type: "immediate" }}
-          customRender={({ onPick }: any) => (
-            <PostItemBtn text="Image" icon={FiImage} onClick={onPick} />
-          )}
-          actionOptions={{
-            // displayMode: "inline",
-            // container: "picker",
-
-            accept: "image/*",
-            allowManualRetry: true,
-            fromSources: ["local_file_system"],
-          }}
-          onSuccess={onFileUpload}
-        /> */}
 
         <PostItemBtn
           text="Markdown"
