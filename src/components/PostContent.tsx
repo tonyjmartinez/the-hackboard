@@ -1,8 +1,9 @@
 import React from "react";
 import { useQuery } from "urql";
 import { ItemTypes } from "../util/enums";
-import { Text, Image } from "@chakra-ui/react";
+import { Text, Image, AspectRatio } from "@chakra-ui/react";
 import Skeleton from "./Skeleton";
+import Interweave from "interweave";
 
 export const GetItem = `
   query MyQuery($id: Int) {
@@ -33,7 +34,14 @@ const PostContent = ({ itemId }: PostContentProps) => {
     case ItemTypes.Text:
       return <Text whiteSpace="pre-line">{value}</Text>;
     case ItemTypes.Image:
-      return <Image src={value} />;
+      return (
+        <AspectRatio ratio={16 / 9} w={["80%", "80%", "60%"]}>
+          <Image src={value} />
+        </AspectRatio>
+      );
+    case ItemTypes.Markdown:
+      return <Interweave content={value} />;
+
     default:
       return <Text>Oops</Text>;
   }

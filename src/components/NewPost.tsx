@@ -4,6 +4,8 @@ import moment from "moment";
 import { ItemTypes } from "../util/enums";
 import { List, arrayMove } from "react-movable";
 import ReactFilestack from "filestack-react";
+import useRequireAuth from "../hooks/use-require-auth";
+import Interweave from "interweave";
 
 import MarkdownEditor from "./MarkdownEditor";
 
@@ -15,7 +17,6 @@ import {
   Tab,
   TabList,
   TabPanels,
-  CloseButton,
   RadioGroup,
   Stack,
   Radio,
@@ -34,18 +35,12 @@ import {
   Container,
   useTheme,
   Textarea,
-  ButtonGroup,
-  Editable,
-  EditableInput,
-  EditablePreview,
-  Flex,
   IconButton,
-  BoxProps,
   Divider,
   HStack,
   Spacer,
   InputProps,
-  TextareaProps,
+  AspectRatio,
 } from "@chakra-ui/react";
 import { useMutation } from "urql";
 
@@ -55,12 +50,9 @@ import {
   FiFileText,
   FiCode,
   FiCheckCircle,
-  FiXCircle,
-  FiEdit2,
   FiX,
 } from "react-icons/fi";
 import { useAuth0 } from "@auth0/auth0-react";
-import { ReactComponent } from "*.svg";
 
 type PostItemBtnProps = {
   text?: string;
@@ -162,10 +154,6 @@ export interface EditableTextProps extends InputProps {
   onTextSubmit?: (val: string) => void;
   singleLine?: boolean;
 }
-interface TextInputProps extends TextareaProps {
-  inputValue: string;
-  setInputValue: any;
-}
 
 const EditableText = ({
   textValue,
@@ -176,7 +164,6 @@ const EditableText = ({
   const [inputValue, setInputValue] = React.useState(textValue ?? "");
   const [editing, setEditing] = useState(isEditing);
 
-  console.log("rerender...");
   if (editing) {
     return (
       <PostItemWrapper>
@@ -204,15 +191,14 @@ const EditableText = ({
 
         <Spacer />
         <IconButton
-          icon={<FiX />}
-          onClick={() => setEditing(!editing)}
-          aria-label="edit"
-        />
-
-        <IconButton
           icon={<FiCheckCircle />}
           onClick={() => onTextSubmit?.(inputValue)}
           aria-label="submit-text"
+        />
+        <IconButton
+          icon={<FiX />}
+          onClick={() => setEditing(!editing)}
+          aria-label="stop editing"
         />
       </PostItemWrapper>
     );
@@ -243,10 +229,10 @@ const NewPost = () => {
   const [radioValue, setRadioValue] = React.useState<ReactText>("true");
   const [editing, setEditing] = useState<null | ItemTypes>(null);
   const [markdown, setMarkdown] = useState("");
-
-  console.log("ids?", postItemIds);
-
   const { user } = useAuth0();
+  const buttonColor = useColorModeValue("gray", "blue");
+
+  const auth = useRequireAuth();
 
   console.log("insertPostResult", insertPostResult);
 
@@ -277,10 +263,12 @@ const NewPost = () => {
       }
       if (type === ItemTypes.Image) {
         setShowImageUpload(false);
-        setEditing(null);
       }
+      setEditing(null);
     }
   }, [insertItemResult]);
+
+  if (!auth) return <div>Loading...</div>;
 
   const sendItem = (value: string, type: string) => {
     insertItem({
@@ -352,11 +340,18 @@ const NewPost = () => {
         );
       case ItemTypes.Markdown:
         return (
-          <MarkdownEditor
-            key="markdown"
-            value={markdown}
-            setValue={setMarkdown}
-          />
+          <VStack>
+            <MarkdownEditor
+              key="markdown"
+              value={markdown}
+              setValue={setMarkdown}
+            />
+            <IconButton
+              icon={<FiCheckCircle />}
+              onClick={() => sendItem(markdown, ItemTypes.Markdown)}
+              aria-label="submit-text"
+            />
+          </VStack>
         );
       case ItemTypes.Image:
         return (
@@ -364,10 +359,18 @@ const NewPost = () => {
             <FormLabel mb={6}>Image Content</FormLabel>
             <Tabs variant="soft-rounded" colorScheme="teal">
               <TabList>
-                <Tab>Upload Image</Tab>
                 <Tab>Image URL</Tab>
+                <Tab>Upload Image</Tab>
               </TabList>
               <TabPanels>
+                <TabPanel>
+                  <EditableText
+                    onTextSubmit={onUrlSubmit}
+                    textValue=""
+                    isEditing
+                    singleLine
+                  />
+                </TabPanel>
                 <TabPanel>
                   <ReactFilestack
                     apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
@@ -381,14 +384,6 @@ const NewPost = () => {
                       fromSources: ["local_file_system"],
                     }}
                     onSuccess={onFileUpload}
-                  />
-                </TabPanel>
-                <TabPanel>
-                  <EditableText
-                    onTextSubmit={onUrlSubmit}
-                    textValue=""
-                    isEditing
-                    singleLine
                   />
                 </TabPanel>
               </TabPanels>
@@ -412,8 +407,8 @@ const NewPost = () => {
               mt={4}
               isLoading={insertPostResult.fetching}
               loadingText="Submitting"
-              colorScheme="teal"
               type="submit"
+              colorScheme={buttonColor}
             >
               Submit
             </Button>
@@ -434,7 +429,11 @@ const NewPost = () => {
         </FormControl>
 
         <FormLabel htmlFor="coverImage">Cover Image</FormLabel>
-        <Tabs variant="soft-rounded" colorScheme="teal" name="coverImage">
+        <Tabs
+          variant="soft-rounded"
+          colorScheme={buttonColor}
+          name="coverImage"
+        >
           <TabList>
             <Tab>Image URL</Tab>
             <Tab>Upload Image</Tab>
@@ -485,6 +484,8 @@ const NewPost = () => {
           </Stack>
         </RadioGroup>
       </form>
+      {postItems?.length > 0 && <Heading m={6}>Post Content</Heading>}
+
       <List
         values={postItems}
         onChange={({ oldIndex, newIndex }) => {
@@ -498,22 +499,34 @@ const NewPost = () => {
           switch (type) {
             case ItemTypes.Text:
               return (
-                <Box key={index} {...props}>
+                <Box key={index} py={6} {...props}>
                   <EditableText
                     textValue={val}
                     onTextSubmit={(newVal: string) =>
                       sendUpdateItem(newVal, id)
                     }
                   />
+                  <Divider mt={3} />
                 </Box>
               );
             case ItemTypes.Image:
               return (
-                <VStack key={index} {...props}>
+                <VStack key={index} py={6} {...props}>
                   <FormLabel>Image Content</FormLabel>
-                  <Image src={val} mb={12} />
-                  <CloseButton />
+                  <AspectRatio ratio={16 / 9} w={["80%", "80%", "60%"]} mb={6}>
+                    <Image src={val} mb={12} />
+                  </AspectRatio>
+                  <Divider mt={3} />
                 </VStack>
+              );
+
+            case ItemTypes.Markdown:
+              console.log("type?", typeof val);
+              return (
+                <Box key={index} py={6} {...props}>
+                  <Interweave content={val} />
+                  <Divider mt={3} />
+                </Box>
               );
 
             default:
@@ -522,7 +535,6 @@ const NewPost = () => {
         }}
       />
 
-      <Divider />
       {editing && (
         <StyledBox>
           <FormLabel color="blue.500">New Content</FormLabel>
