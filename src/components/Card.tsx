@@ -1,12 +1,11 @@
 import React from "react";
-import { Box, Image, AspectRatio, Badge } from "@chakra-ui/react";
+import { Box, Image, AspectRatio, Badge, BoxProps } from "@chakra-ui/react";
 import moment from "moment";
 // Sample card from Airbnb
 
-export interface CardProps {
+export interface CardProps extends BoxProps {
   title: string;
   subtitle: string;
-  id?: number;
   createdAt?: any;
   imageUrl?: string;
 }
@@ -18,7 +17,7 @@ const Card = ({
   imageUrl = "https://bit.ly/2Z4KKcF",
 }: CardProps) => {
   return (
-    <Box w="100%" borderWidth="1px" borderRadius="lg" overflow="hidden">
+    <Box w="90%" m="auto" borderWidth="1px" borderRadius="lg" overflow="hidden">
       <AspectRatio ratio={16 / 9}>
         <Image src={imageUrl} alt={"post image"} />
       </AspectRatio>

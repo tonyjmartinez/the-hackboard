@@ -1,5 +1,4 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
-import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
 import { ChakraProvider, Box } from "@chakra-ui/react";
@@ -44,13 +43,11 @@ const App = () => {
       <ChakraProvider theme={theme}>
         <Router>
           <Suspense fallback={<div>Loading...</div>}>
-            <Box mb={40}>
-              <Switch>
-                <Route component={NewPost} path="/new" />
-                <Route path="/posts/:id" children={<Post />} />
-                <Route component={Page} path="/" />
-              </Switch>
-            </Box>
+            <Switch>
+              <Route component={NewPost} path="/new" />
+              <Route path="/posts/:id" children={<Post />} />
+              <Route component={Page} path="/" />
+            </Switch>
 
             <Nav />
           </Suspense>

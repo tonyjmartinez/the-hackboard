@@ -1,8 +1,10 @@
 import React, { lazy } from "react";
 import { useQuery } from "urql";
-import { Box } from "@chakra-ui/react";
+import { Box, useMediaQuery } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Skeleton from "./Skeleton";
+import { FixedSizeList as List } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 
 const Card = lazy(() => import("./Card"));
 
@@ -30,31 +32,70 @@ export interface ItemType {
 
 const Page = () => {
   const [result] = useQuery({ query: GetPosts });
-  console.log("result", result);
+  const [sm, md, lg] = useMediaQuery([
+    "(min-width: 0em)",
+    "(min-width: 30em)",
+    "(min-width: 80em)",
+  ]);
+
+  console.log(sm, md, lg);
+
+  let cardHeight = 200;
+  if (lg) {
+    cardHeight = 700;
+  } else if (md) {
+    cardHeight = 450;
+  } else if (sm) {
+    cardHeight = 350;
+  }
+
   if (!(result.data?.posts.length > 0)) {
     return <Skeleton />;
   }
 
+  const posts = result.data?.posts;
+
+  const Row = ({ index, style }: any) => {
+    if (!posts || !posts[index]) return null;
+    const { title, subtitle, id, image, created_at } = posts[index];
+
+    return (
+      <Box
+        sx={{
+          ...style,
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+        w={["90%", "90%", "60%"]}
+        marginY={6}
+        key={id}
+      >
+        <Link to={`/posts/${id}`}>
+          <Card
+            title={title}
+            subtitle={subtitle}
+            key={id}
+            createdAt={created_at}
+            imageUrl={image ? image : undefined}
+          />
+        </Link>
+      </Box>
+    );
+  };
+
   return (
-    <Box pb={6} pt={3}>
-      {result.data?.posts.map((item: ItemType, idx: number) => {
-        const { title, subtitle, id, image, created_at } = item;
-        console.log("item", item);
-        return (
-          <Box w={["80%", "80%", "40%"]} m="auto" marginY={6} key={id}>
-            <Link to={`/posts/${id}`}>
-              <Card
-                title={title}
-                subtitle={subtitle}
-                key={id}
-                createdAt={created_at}
-                imageUrl={image ? image : undefined}
-              />
-            </Link>
-          </Box>
-        );
-      })}
-    </Box>
+    <AutoSizer>
+      {({ height, width }) => (
+        <List
+          height={height}
+          itemCount={posts.length}
+          itemSize={cardHeight}
+          width={width}
+        >
+          {Row}
+        </List>
+      )}
+    </AutoSizer>
   );
 };
 

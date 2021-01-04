@@ -264,6 +264,9 @@ const NewPost = () => {
       if (type === ItemTypes.Image) {
         setShowImageUpload(false);
       }
+      if (type === ItemTypes.Markdown) {
+        setMarkdown("");
+      }
       setEditing(null);
     }
   }, [insertItemResult]);
