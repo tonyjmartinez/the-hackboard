@@ -1,9 +1,10 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createClient, Provider } from "urql";
-import { ChakraProvider, Box } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./theme/theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Body from "./components/layout/Body";
 
 const NewPost = lazy(() => import("./components/NewPost"));
 const Post = lazy(() => import("./components/Post"));
@@ -41,17 +42,28 @@ const App = () => {
   return (
     <Provider value={client}>
       <ChakraProvider theme={theme}>
-        <Router>
-          <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Router>
+            <Nav zIndex="sticky" />
             <Switch>
-              <Route component={NewPost} path="/new" />
-              <Route path="/posts/:id" children={<Post />} />
-              <Route component={Page} path="/" />
+              <Route path="/new">
+                <Body>
+                  <NewPost />
+                </Body>
+              </Route>
+              <Route path="/posts/:id">
+                <Body>
+                  <Post />
+                </Body>
+              </Route>
+              <Route path="/">
+                <Body>
+                  <Page />
+                </Body>
+              </Route>
             </Switch>
-
-            <Nav />
-          </Suspense>
-        </Router>
+          </Router>
+        </Suspense>
       </ChakraProvider>
     </Provider>
   );
