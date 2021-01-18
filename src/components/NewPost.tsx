@@ -192,7 +192,10 @@ const EditableText = ({
         <Spacer />
         <IconButton
           icon={<FiCheckCircle />}
-          onClick={() => onTextSubmit?.(inputValue)}
+          onClick={() => {
+            onTextSubmit?.(inputValue);
+            setEditing(false);
+          }}
           aria-label="submit-text"
         />
         <IconButton
@@ -223,7 +226,7 @@ const NewPost = () => {
   const [, setSubmittedTextId] = useState(-1);
   const [insertItemResult, insertItem] = useMutation(InsertItem);
   const [insertPostResult, insertPost] = useMutation(InsertPost);
-  const [, updateItem] = useMutation(UpdateItemValue);
+  const [updateItemResult, updateItem] = useMutation(UpdateItemValue);
   const [url, setUrl] = useState<string | null>(null);
   const [postItems, setPostItems] = useState<PostItem[]>([]);
   const [radioValue, setRadioValue] = React.useState<ReactText>("true");
@@ -233,8 +236,6 @@ const NewPost = () => {
   const buttonColor = useColorModeValue("gray", "blue");
 
   const auth = useRequireAuth();
-
-  console.log("insertPostResult", insertPostResult);
 
   const onFileUpload = (response: any) => {
     sendItem(thumbnail(response.filesUploaded[0].url), ItemTypes.Image);
@@ -252,7 +253,6 @@ const NewPost = () => {
 
   useEffect(() => {
     const newItem = insertItemResult?.data?.insert_items?.returning[0];
-    console.log("new?", insertItemResult);
 
     if (newItem) {
       const { value, id, type } = newItem;
@@ -270,6 +270,16 @@ const NewPost = () => {
       setEditing(null);
     }
   }, [insertItemResult]);
+
+  useEffect(() => {
+    const updatedItem = updateItemResult?.data?.update_items?.returning[0];
+    if (updatedItem) {
+      const newItems = [...postItems];
+      const idx = newItems.findIndex((val) => val.id === updatedItem.id);
+      newItems[idx] = updatedItem;
+      setPostItems(newItems);
+    }
+  }, [updateItemResult]);
 
   if (!auth) return <div>Loading...</div>;
 
@@ -498,7 +508,6 @@ const NewPost = () => {
         renderList={({ children, props }) => <Box {...props}>{children}</Box>}
         renderItem={({ value, props, index }) => {
           const { value: val, id, type } = value;
-          console.log("render value.", val);
           switch (type) {
             case ItemTypes.Text:
               return (
@@ -524,7 +533,6 @@ const NewPost = () => {
               );
 
             case ItemTypes.Markdown:
-              console.log("type?", typeof val);
               return (
                 <Box key={index} py={6} {...props}>
                   <Interweave content={val} />
