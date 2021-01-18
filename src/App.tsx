@@ -57,9 +57,7 @@ const App = () => {
                 </Body>
               </Route>
               <Route path="/">
-                <Body>
-                  <Page />
-                </Body>
+                <Page />
               </Route>
             </Switch>
           </Router>

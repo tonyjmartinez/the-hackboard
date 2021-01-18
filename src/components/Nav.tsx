@@ -28,7 +28,7 @@ const Nav = ({ ...rest }: BoxProps) => {
   const iconColor = useColorModeValue("white", theme.colors.blue[800]);
 
   return (
-    <Flex w="100%" pos="fixed" {...rest}>
+    <Flex w="100%" pos="fixed" opacity={0.8} {...rest}>
       <Center bg="blue.600">
         <Heading size="md" p={3} color="white">
           <Link to="/">The Hackboard</Link>
