@@ -38,8 +38,6 @@ const Page = () => {
     "(min-width: 80em)",
   ]);
 
-  console.log(sm, md, lg);
-
   let cardHeight = 200;
   if (lg) {
     cardHeight = 700;
@@ -58,27 +56,21 @@ const Page = () => {
   const Row = ({ index, style }: any) => {
     if (!posts || !posts[index]) return null;
     const { title, subtitle, id, image, created_at } = posts[index];
+    console.log("index", index);
 
     return (
-      <Box
-        sx={{
-          ...style,
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}
-        w={["90%", "90%", "60%"]}
-        marginY={6}
-        key={id}
-      >
-        <Link to={`/posts/${id}`}>
-          <Card
-            title={title}
-            subtitle={subtitle}
-            key={id}
-            createdAt={created_at}
-            imageUrl={image ? image : undefined}
-          />
-        </Link>
+      <Box sx={{ style }} mt={index === 0 ? 24 : 0}>
+        <Box w={["90%", "70%", "40%"]} margin="0px auto" marginY={6} key={id}>
+          <Link to={`/posts/${id}`}>
+            <Card
+              title={title}
+              subtitle={subtitle}
+              key={id}
+              createdAt={created_at}
+              imageUrl={image ? image : undefined}
+            />
+          </Link>
+        </Box>
       </Box>
     );
   };

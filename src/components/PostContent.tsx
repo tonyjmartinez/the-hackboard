@@ -20,14 +20,11 @@ export type PostContentProps = {
 };
 const PostContent = ({ itemId }: PostContentProps) => {
   const [result] = useQuery({ query: GetItem, variables: { id: itemId } });
-  console.log("res", result);
 
   if (result.fetching || !result.data) {
     return <Skeleton />;
   }
-  console.log("result", result);
   const { type, value } = result.data?.items[0];
-  console.log("result", result);
 
   // return <div>{result.data?.items[0].value}</div>;
   switch (type) {

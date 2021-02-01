@@ -43,7 +43,6 @@ const Post = () => {
     <>
       {result.data?.posts?.map(
         ({ title, subtitle, post_items, image }: any, idx: number) => {
-          console.log("image", image);
           return (
             <Box key={idx} m="auto" mt={20} w="80%" textAlign="left">
               <VStack spacing={7} align="start">

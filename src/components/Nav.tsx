@@ -28,14 +28,14 @@ const Nav = ({ ...rest }: BoxProps) => {
   const iconColor = useColorModeValue("white", theme.colors.blue[800]);
 
   return (
-    <Flex w="100%" pos="fixed" opacity={0.8} {...rest}>
+    <Flex w="100%" pos="fixed" {...rest}>
       <Center bg="blue.600">
         <Heading size="md" p={3} color="white">
           <Link to="/">The Hackboard</Link>
         </Heading>
       </Center>
       <Spacer />
-      <Box p="3" bg="blue.600">
+      <Box p="1" bg="blue.600">
         {isAuthenticated ? (
           <>
             <Link to="/new">
