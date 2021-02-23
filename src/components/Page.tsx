@@ -1,6 +1,6 @@
 import React, { lazy } from "react";
 import { useQuery } from "urql";
-import { Box, useMediaQuery } from "@chakra-ui/react";
+import { Box, useMediaQuery, Center } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Skeleton from "./Skeleton";
 import { FixedSizeList as List } from "react-window";
@@ -40,9 +40,9 @@ const Page = () => {
 
   let cardHeight = 200;
   if (lg) {
-    cardHeight = 700;
+    cardHeight = 500;
   } else if (md) {
-    cardHeight = 450;
+    cardHeight = 400;
   } else if (sm) {
     cardHeight = 350;
   }
@@ -56,38 +56,41 @@ const Page = () => {
   const Row = ({ index, style }: any) => {
     if (!posts || !posts[index]) return null;
     const { title, subtitle, id, image, created_at } = posts[index];
-    console.log("index", index);
 
     return (
-      <Box sx={{ style }} mt={index === 0 ? 24 : 0}>
-        <Box w={["90%", "70%", "40%"]} margin="0px auto" marginY={6} key={id}>
-          <Link to={`/posts/${id}`}>
-            <Card
-              title={title}
-              subtitle={subtitle}
-              key={id}
-              createdAt={created_at}
-              imageUrl={image ? image : undefined}
-            />
-          </Link>
-        </Box>
+      <Box sx={{ ...style }} key={id}>
+        <Center h="100%">
+          <Box w={["90%", "70%", "40%"]} margin="0px auto">
+            <Link to={`/posts/${id}`}>
+              <Card
+                title={title}
+                subtitle={subtitle}
+                key={id}
+                createdAt={created_at}
+                imageUrl={image ? image : undefined}
+              />
+            </Link>
+          </Box>
+        </Center>
       </Box>
     );
   };
 
   return (
-    <AutoSizer>
-      {({ height, width }) => (
-        <List
-          height={height}
-          itemCount={posts.length}
-          itemSize={cardHeight}
-          width={width}
-        >
-          {Row}
-        </List>
-      )}
-    </AutoSizer>
+    <Box h="100vh">
+      <AutoSizer>
+        {({ height, width }) => (
+          <List
+            height={height}
+            itemCount={posts.length}
+            itemSize={cardHeight}
+            width={width}
+          >
+            {Row}
+          </List>
+        )}
+      </AutoSizer>
+    </Box>
   );
 };
 

@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, Image, AspectRatio, Badge, BoxProps } from "@chakra-ui/react";
+import {
+  Box,
+  Img as Image,
+  AspectRatio,
+  Badge,
+  BoxProps,
+} from "@chakra-ui/react";
 import moment from "moment";
 // Sample card from Airbnb
 
