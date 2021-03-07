@@ -1,12 +1,12 @@
-import React, { lazy } from "react";
-import { useQuery } from "urql";
-import { Box, useMediaQuery, Center } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
-import Skeleton from "./Skeleton";
-import { FixedSizeList as List } from "react-window";
-import AutoSizer from "react-virtualized-auto-sizer";
+import React, {lazy} from 'react'
+import {useQuery} from 'react-query'
+import {Box, useMediaQuery, Center} from '@chakra-ui/react'
+import {Link} from 'react-router-dom'
+import Skeleton from './Skeleton'
+import {FixedSizeList as List} from 'react-window'
+import AutoSizer from 'react-virtualized-auto-sizer'
 
-const Card = lazy(() => import("./Card"));
+const Card = lazy(() => import('./Card'))
 
 const GetPosts = `
   query MyQuery @cached {
@@ -20,47 +20,56 @@ const GetPosts = `
       is_public
     }
   }
-`;
+`
 
 export interface ItemType {
-  title: string;
-  subtitle: string;
-  id?: number;
-  created_at?: any;
-  image?: string;
+  title: string
+  subtitle: string
+  id?: number
+  created_at?: any
+  image?: string
+}
+
+interface PostsType {
+  posts: any[]
 }
 
 const Page = () => {
-  const [result] = useQuery({ query: GetPosts });
+  const {status, data, error, isFetching} = useQuery<PostsType | undefined>(
+    GetPosts,
+  )
+
+  console.log(status, isFetching)
+
   const [sm, md, lg] = useMediaQuery([
-    "(min-width: 0em)",
-    "(min-width: 30em)",
-    "(min-width: 80em)",
-  ]);
+    '(min-width: 0em)',
+    '(min-width: 30em)',
+    '(min-width: 80em)',
+  ])
 
-  let cardHeight = 200;
+  let cardHeight = 200
   if (lg) {
-    cardHeight = 500;
+    cardHeight = 500
   } else if (md) {
-    cardHeight = 400;
+    cardHeight = 400
   } else if (sm) {
-    cardHeight = 350;
+    cardHeight = 350
   }
 
-  if (!(result.data?.posts.length > 0)) {
-    return <Skeleton />;
+  if (isFetching || !data || !(data?.posts.length > 0)) {
+    return <Skeleton />
   }
 
-  const posts = result.data?.posts;
+  const posts = data?.posts
 
-  const Row = ({ index, style }: any) => {
-    if (!posts || !posts[index]) return null;
-    const { title, subtitle, id, image, created_at } = posts[index];
+  const Row = ({index, style}: any) => {
+    if (!posts || !posts[index]) return null
+    const {title, subtitle, id, image, created_at} = posts[index]
 
     return (
-      <Box sx={{ ...style }} key={id}>
+      <Box sx={{...style}} key={id}>
         <Center h="100%">
-          <Box w={["90%", "70%", "40%"]} margin="0px auto">
+          <Box w={['90%', '70%', '40%']} margin="0px auto">
             <Link to={`/posts/${id}`}>
               <Card
                 title={title}
@@ -73,13 +82,13 @@ const Page = () => {
           </Box>
         </Center>
       </Box>
-    );
-  };
+    )
+  }
 
   return (
     <Box h="100vh">
       <AutoSizer>
-        {({ height, width }) => (
+        {({height, width}) => (
           <List
             height={height}
             itemCount={posts.length}
@@ -91,7 +100,7 @@ const Page = () => {
         )}
       </AutoSizer>
     </Box>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

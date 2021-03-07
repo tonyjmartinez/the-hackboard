@@ -6,11 +6,11 @@ import {
   Box,
   Text,
   AspectRatio,
-} from "@chakra-ui/react";
-import React from "react";
-import { useParams } from "react-router-dom";
-import { useQuery } from "urql";
-import PostContent from "./PostContent";
+} from '@chakra-ui/react'
+import React from 'react'
+import {useParams} from 'react-router-dom'
+import {useQuery} from 'react-query'
+import PostContent from './PostContent'
 
 const GetPost = `
   query MyQuery($id: Int) {
@@ -23,32 +23,34 @@ const GetPost = `
       image
     }
   }
-`;
+`
 
 interface ParamType {
-  id: string;
+  id: string
 }
 
 const Post = () => {
-  const { id } = useParams<ParamType>();
+  const {id} = useParams<ParamType>()
 
-  const [result] = useQuery({
-    query: GetPost,
-    variables: { id: parseInt(id) },
-  });
+  const {data, isFetching, error, status} = useQuery<any | undefined>([
+    GetPost,
+    {
+      id: parseInt(id),
+    },
+  ])
 
-  if (result.fetching) return <div>Loading...</div>;
+  if (isFetching || !data) return <div>Loading...</div>
 
   return (
     <>
-      {result.data?.posts?.map(
-        ({ title, subtitle, post_items, image }: any, idx: number) => {
+      {data?.posts?.map(
+        ({title, subtitle, post_items, image}: any, idx: number) => {
           return (
             <Box key={idx} m="auto" mt={20} w="80%" textAlign="left">
               <VStack spacing={7} align="start">
                 {image && (
                   <Center w="100%">
-                    <AspectRatio ratio={16 / 9} w={["80%", "80%", "60%"]}>
+                    <AspectRatio ratio={16 / 9} w={['80%', '80%', '60%']}>
                       <Image src={image} />
                     </AspectRatio>
                   </Center>
@@ -62,11 +64,11 @@ const Post = () => {
                   ))}
               </VStack>
             </Box>
-          );
-        }
+          )
+        },
       )}
     </>
-  );
-};
+  )
+}
 
-export default Post;
+export default Post
