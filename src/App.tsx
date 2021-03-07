@@ -1,8 +1,8 @@
 import React, {useState, useEffect, lazy, Suspense} from 'react'
 import {useAuth0} from '@auth0/auth0-react'
-import {createClient, Provider} from 'urql'
 import {
   useQuery,
+  useMutation,
   useQueryClient,
   QueryClient,
   QueryClientProvider,
@@ -20,7 +20,7 @@ const Page = lazy(() => import('./components/Page'))
 const Nav = lazy(() => import('./components/Nav'))
 
 const endpoint = 'https://the-hackboard.herokuapp.com/v1/graphql'
-const client = new GraphQLClient(endpoint)
+export const client = new GraphQLClient(endpoint)
 
 const defaultQueryFn = async ({queryKey}: {queryKey: any}) => {
   console.log('query', queryKey)
@@ -30,6 +30,7 @@ const defaultQueryFn = async ({queryKey}: {queryKey: any}) => {
       gql`
         ${queryKey[0]}
       `,
+      queryKey[1],
     )
   } catch (err) {
     console.log(err)

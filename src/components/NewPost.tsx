@@ -1,13 +1,13 @@
-import { useForm } from "react-hook-form";
-import React, { useEffect, useState, ReactText, ReactNode } from "react";
-import moment from "moment";
-import { ItemTypes } from "../util/enums";
-import { List, arrayMove } from "react-movable";
-import ReactFilestack from "filestack-react";
-import useRequireAuth from "../hooks/use-require-auth";
-import Interweave from "interweave";
+import {useForm} from 'react-hook-form'
+import React, {useEffect, useState, ReactText, ReactNode} from 'react'
+import moment from 'moment'
+import {ItemTypes} from '../util/enums'
+import {List, arrayMove} from 'react-movable'
+import ReactFilestack from 'filestack-react'
+import useRequireAuth from '../hooks/use-require-auth'
+import Interweave from 'interweave'
 
-import MarkdownEditor from "./MarkdownEditor";
+import MarkdownEditor from './MarkdownEditor'
 
 import {
   FormErrorMessage,
@@ -41,8 +41,9 @@ import {
   Spacer,
   InputProps,
   AspectRatio,
-} from "@chakra-ui/react";
-import { useMutation } from "urql";
+} from '@chakra-ui/react'
+// import {useMutation} from 'react-query'
+import useGqlMutation from 'hooks/use-gql-mutation'
 
 import {
   FiEdit,
@@ -51,14 +52,14 @@ import {
   FiCode,
   FiCheckCircle,
   FiX,
-} from "react-icons/fi";
-import { useAuth0 } from "@auth0/auth0-react";
+} from 'react-icons/fi'
+import {useAuth0} from '@auth0/auth0-react'
 
 type PostItemBtnProps = {
-  text?: string;
-  icon?: any;
-  onClick?: () => void;
-};
+  text?: string
+  icon?: any
+  onClick?: () => void
+}
 
 const InsertItem = `
   mutation ($value: String!, $userid: String!, $type: String!, $is_public: Boolean = false) {
@@ -70,7 +71,7 @@ const InsertItem = `
       }
     }
   }
-`;
+`
 
 const InsertPost = `
   mutation ($post_items: jsonb, $title: String, $user_id: String, $subtitle: String, $created_at: timestamptz, $image: String, $is_public: Boolean = false) {
@@ -84,7 +85,7 @@ const InsertPost = `
       }
     }
   }
-`;
+`
 
 const UpdateItemValue = `
   mutation ($id: Int, $value: String = "") {
@@ -96,29 +97,29 @@ const UpdateItemValue = `
       }
     }
   }
-`;
+`
 
-const StyledBox = ({ children }: { children: ReactNode }) => {
-  const theme = useTheme();
-  const borderColor = useColorModeValue("gray", theme.colors.blue[500]);
+const StyledBox = ({children}: {children: ReactNode}) => {
+  const theme = useTheme()
+  const borderColor = useColorModeValue('gray', theme.colors.blue[500])
 
   return (
     <Box border={`2px solid ${borderColor}`} borderRadius="5px" p={3}>
       {children}
     </Box>
-  );
-};
+  )
+}
 
-const PostItemBtn = ({ text, icon, onClick }: PostItemBtnProps) => {
-  const iconColor = useColorModeValue("black", "blue.500");
-  const boxColor = useColorModeValue("gray.100", "blue.900");
-  const theme = useTheme();
-  const shadowColor = useColorModeValue("gray", theme.colors.blue[500]);
+const PostItemBtn = ({text, icon, onClick}: PostItemBtnProps) => {
+  const iconColor = useColorModeValue('black', 'blue.500')
+  const boxColor = useColorModeValue('gray.100', 'blue.900')
+  const theme = useTheme()
+  const shadowColor = useColorModeValue('gray', theme.colors.blue[500])
   return (
     <Box
       bg={boxColor}
       height="160px"
-      _hover={{ border: `10px solid ${shadowColor}` }}
+      _hover={{border: `10px solid ${shadowColor}`}}
       cursor="pointer"
       onClick={onClick}
     >
@@ -129,30 +130,30 @@ const PostItemBtn = ({ text, icon, onClick }: PostItemBtnProps) => {
         </VStack>
       </Center>
     </Box>
-  );
-};
+  )
+}
 
 const thumbnail = (url: any) => {
-  const parts = url.split("/");
-  parts.splice(3, 0, "resize=width:400");
-  return parts.join("/");
-};
+  const parts = url.split('/')
+  parts.splice(3, 0, 'resize=width:400')
+  return parts.join('/')
+}
 
 type PostItem = {
-  id: number;
-  value: string;
-  type: string;
-};
+  id: number
+  value: string
+  type: string
+}
 
-const PostItemWrapper = ({ children, ...props }: any) => (
+const PostItemWrapper = ({children, ...props}: any) => (
   <HStack {...props}>{children}</HStack>
-);
+)
 
 export interface EditableTextProps extends InputProps {
-  isEditing?: boolean;
-  textValue: string;
-  onTextSubmit?: (val: string) => void;
-  singleLine?: boolean;
+  isEditing?: boolean
+  textValue: string
+  onTextSubmit?: (val: string) => void
+  singleLine?: boolean
 }
 
 const EditableText = ({
@@ -161,8 +162,8 @@ const EditableText = ({
   isEditing = false,
   singleLine = false,
 }: EditableTextProps) => {
-  const [inputValue, setInputValue] = React.useState(textValue ?? "");
-  const [editing, setEditing] = useState(isEditing);
+  const [inputValue, setInputValue] = React.useState(textValue ?? '')
+  const [editing, setEditing] = useState(isEditing)
 
   if (editing) {
     return (
@@ -170,9 +171,9 @@ const EditableText = ({
         {singleLine ? (
           <Input
             value={inputValue}
-            onChange={(e) => {
-              e.preventDefault();
-              setInputValue(e.target.value);
+            onChange={e => {
+              e.preventDefault()
+              setInputValue(e.target.value)
             }}
             placeholder="Text content"
             size="sm"
@@ -180,9 +181,9 @@ const EditableText = ({
         ) : (
           <Textarea
             value={inputValue}
-            onChange={(e) => {
-              e.preventDefault();
-              setInputValue(e.target.value);
+            onChange={e => {
+              e.preventDefault()
+              setInputValue(e.target.value)
             }}
             placeholder="Text content"
             size="sm"
@@ -193,8 +194,8 @@ const EditableText = ({
         <IconButton
           icon={<FiCheckCircle />}
           onClick={() => {
-            onTextSubmit?.(inputValue);
-            setEditing(false);
+            onTextSubmit?.(inputValue)
+            setEditing(false)
           }}
           aria-label="submit-text"
         />
@@ -204,7 +205,7 @@ const EditableText = ({
           aria-label="stop editing"
         />
       </PostItemWrapper>
-    );
+    )
   }
   return (
     <PostItemWrapper>
@@ -216,94 +217,109 @@ const EditableText = ({
         aria-label="edit"
       />
     </PostItemWrapper>
-  );
-};
+  )
+}
+
+interface ItemType {
+  value: string
+  userid: any
+  type: ItemTypes
+  is_public: boolean
+}
 
 const NewPost = () => {
-  const { handleSubmit, errors, register } = useForm();
-  const [showImageUpload, setShowImageUpload] = useState(false);
-  const [postItemIds, setPostItemIds] = useState<number[]>([]);
-  const [, setSubmittedTextId] = useState(-1);
-  const [insertItemResult, insertItem] = useMutation(InsertItem);
-  const [insertPostResult, insertPost] = useMutation(InsertPost);
-  const [updateItemResult, updateItem] = useMutation(UpdateItemValue);
-  const [url, setUrl] = useState<string | null>(null);
-  const [postItems, setPostItems] = useState<PostItem[]>([]);
-  const [radioValue, setRadioValue] = React.useState<ReactText>("true");
-  const [editing, setEditing] = useState<null | ItemTypes>(null);
-  const [markdown, setMarkdown] = useState("");
-  const { user } = useAuth0();
-  const buttonColor = useColorModeValue("gray", "blue");
+  const {handleSubmit, errors, register} = useForm()
+  const [showImageUpload, setShowImageUpload] = useState(false)
+  const [postItemIds, setPostItemIds] = useState<number[]>([])
+  const [, setSubmittedTextId] = useState(-1)
+  const itemMutation = useGqlMutation(InsertItem)
+  const postMutation = useGqlMutation(InsertPost)
+  const itemValueMutation = useGqlMutation(UpdateItemValue)
+  const [url, setUrl] = useState<string | null>(null)
+  const [postItems, setPostItems] = useState<PostItem[]>([])
+  const [radioValue, setRadioValue] = React.useState<ReactText>('true')
+  const [editing, setEditing] = useState<null | ItemTypes>(null)
+  const [markdown, setMarkdown] = useState('')
+  const {user} = useAuth0()
+  const buttonColor = useColorModeValue('gray', 'blue')
 
-  const auth = useRequireAuth();
+  const {data: insertItemResult, mutate: insertItem} = itemMutation
+  const {data: updateItemResult, mutate: updateItem} = itemValueMutation
+  const {
+    data: insertPostResult,
+    mutate: insertPost,
+    isLoading: insertPostLoading,
+  } = postMutation
+
+  const auth = useRequireAuth()
 
   const onFileUpload = (response: any) => {
-    sendItem(thumbnail(response.filesUploaded[0].url), ItemTypes.Image);
-    setEditing(null);
-  };
+    sendItem(thumbnail(response.filesUploaded[0].url), ItemTypes.Image)
+    setEditing(null)
+  }
 
   const onUrlSubmit = (val: string) => {
-    sendItem(val, ItemTypes.Image);
-    setEditing(null);
-  };
+    sendItem(val, ItemTypes.Image)
+    setEditing(null)
+  }
 
   const onSelectCoverImage = (response: any) => {
-    setUrl(thumbnail(response.filesUploaded[0].url));
-  };
+    setUrl(thumbnail(response.filesUploaded[0].url))
+  }
 
   useEffect(() => {
-    const newItem = insertItemResult?.data?.insert_items?.returning[0];
+    const newItem = insertItemResult?.insert_items?.returning[0]
 
     if (newItem) {
-      const { value, id, type } = newItem;
-      setPostItemIds((oldItems) => [...oldItems, newItem.id]);
-      setPostItems((oldItems) => [...oldItems, { value, id, type }]);
-      setSubmittedTextId(newItem.id);
+      const {value, id, type} = newItem
+      setPostItemIds(oldItems => [...oldItems, newItem.id])
+      setPostItems(oldItems => [...oldItems, {value, id, type}])
+      setSubmittedTextId(newItem.id)
       if (type === ItemTypes.Text) {
       }
       if (type === ItemTypes.Image) {
-        setShowImageUpload(false);
+        setShowImageUpload(false)
       }
       if (type === ItemTypes.Markdown) {
-        setMarkdown("");
+        setMarkdown('')
       }
-      setEditing(null);
+      setEditing(null)
     }
-  }, [insertItemResult]);
+  }, [insertItemResult])
 
   useEffect(() => {
-    const updatedItem = updateItemResult?.data?.update_items?.returning[0];
+    const updatedItem = updateItemResult?.data?.update_items?.returning[0]
     if (updatedItem) {
-      const newItems = [...postItems];
-      const idx = newItems.findIndex((val) => val.id === updatedItem.id);
-      newItems[idx] = updatedItem;
-      setPostItems(newItems);
+      const newItems = [...postItems]
+      const idx = newItems.findIndex(val => val.id === updatedItem.id)
+      newItems[idx] = updatedItem
+      setPostItems(newItems)
     }
-  }, [updateItemResult]);
+  }, [updateItemResult])
 
-  if (!auth) return <div>Loading...</div>;
+  if (!auth) return <div>Loading...</div>
 
   const sendItem = (value: string, type: string) => {
     insertItem({
       value,
       userid: user.sub,
       type,
-      is_public: radioValue === "true",
-    });
-  };
+      is_public: radioValue === 'true',
+    })
+  }
   const sendUpdateItem = (value: string, id: number) => {
-    updateItem({ value, id });
-  };
+    updateItem({value, id})
+  }
   function validateTitle(value: string) {
-    let error;
+    let error
     if (!value) {
-      error = "Title is required";
+      error = 'Title is required'
     }
-    return error || true;
+    return error || true
   }
 
   const onSubmit = async (values: any) => {
-    const { title, subtitle } = values;
+    const {title, subtitle} = values
 
     insertPost({
       title,
@@ -312,33 +328,33 @@ const NewPost = () => {
       post_items: postItemIds,
       created_at: moment(),
       image: url,
-      is_public: radioValue === "true",
-    });
-  };
+      is_public: radioValue === 'true',
+    })
+  }
 
   const onTextItemSubmit = (text: string) => {
-    sendItem(text, ItemTypes.Text);
-  };
+    sendItem(text, ItemTypes.Text)
+  }
 
   const ImageUploader = () => {
     return (
       <>
         <ReactFilestack
           apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
-          componentDisplayMode={{ type: "immediate" }}
-          customRender={({ onPick }: any) => (
+          componentDisplayMode={{type: 'immediate'}}
+          customRender={({onPick}: any) => (
             <Button onClick={onPick}>Upload</Button>
           )}
           actionOptions={{
-            accept: "image/*",
+            accept: 'image/*',
             allowManualRetry: true,
-            fromSources: ["local_file_system"],
+            fromSources: ['local_file_system'],
           }}
           onSuccess={onFileUpload}
         />
       </>
-    );
-  };
+    )
+  }
 
   const renderEditingComponent = (editing: any) => {
     switch (editing) {
@@ -350,7 +366,7 @@ const NewPost = () => {
             onTextSubmit={onTextItemSubmit}
             isEditing
           />
-        );
+        )
       case ItemTypes.Markdown:
         return (
           <VStack>
@@ -365,7 +381,7 @@ const NewPost = () => {
               aria-label="submit-text"
             />
           </VStack>
-        );
+        )
       case ItemTypes.Image:
         return (
           <>
@@ -387,14 +403,14 @@ const NewPost = () => {
                 <TabPanel>
                   <ReactFilestack
                     apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
-                    componentDisplayMode={{ type: "immediate" }}
-                    customRender={({ onPick }: any) => (
+                    componentDisplayMode={{type: 'immediate'}}
+                    customRender={({onPick}: any) => (
                       <Button onClick={onPick}>Select Cover Image</Button>
                     )}
                     actionOptions={{
-                      accept: "image/*",
+                      accept: 'image/*',
                       allowManualRetry: true,
-                      fromSources: ["local_file_system"],
+                      fromSources: ['local_file_system'],
                     }}
                     onSuccess={onFileUpload}
                   />
@@ -402,12 +418,12 @@ const NewPost = () => {
               </TabPanels>
             </Tabs>
           </>
-        );
+        )
 
       default:
-        return null;
+        return null
     }
-  };
+  }
 
   return (
     <Container>
@@ -418,7 +434,7 @@ const NewPost = () => {
             <Spacer />
             <Button
               mt={4}
-              isLoading={insertPostResult.fetching}
+              isLoading={insertPostLoading}
               loadingText="Submitting"
               type="submit"
               colorScheme={buttonColor}
@@ -431,7 +447,7 @@ const NewPost = () => {
           <Input
             name="title"
             placeholder="title"
-            ref={register({ validate: validateTitle })}
+            ref={register({validate: validateTitle})}
             mb={3}
             autoComplete="off"
           />
@@ -456,21 +472,21 @@ const NewPost = () => {
               <Input
                 placeholder="Image URL"
                 autoComplete="off"
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={e => setUrl(e.target.value)}
                 name="imageurl"
               />
             </TabPanel>
             <TabPanel>
               <ReactFilestack
                 apikey={`${process.env.REACT_APP_FILESTACK_KEY}`}
-                componentDisplayMode={{ type: "immediate" }}
-                customRender={({ onPick }: any) => (
+                componentDisplayMode={{type: 'immediate'}}
+                customRender={({onPick}: any) => (
                   <Button onClick={onPick}>Select Cover Image</Button>
                 )}
                 actionOptions={{
-                  accept: "image/*",
+                  accept: 'image/*',
                   allowManualRetry: true,
-                  fromSources: ["local_file_system"],
+                  fromSources: ['local_file_system'],
                 }}
                 onSuccess={onSelectCoverImage}
               />
@@ -482,13 +498,13 @@ const NewPost = () => {
           <Input
             name="subtitle"
             placeholder="subtitle"
-            ref={register({ validate: validateTitle })}
+            ref={register({validate: validateTitle})}
             autoComplete="off"
           />
         </FormControl>
         <RadioGroup
           value={radioValue}
-          onChange={(val) => setRadioValue(val)}
+          onChange={val => setRadioValue(val)}
           mb={12}
         >
           <Stack spacing={4} direction="row">
@@ -501,13 +517,13 @@ const NewPost = () => {
 
       <List
         values={postItems}
-        onChange={({ oldIndex, newIndex }) => {
-          setPostItems(arrayMove(postItems, oldIndex, newIndex));
-          setPostItemIds(arrayMove(postItemIds, oldIndex, newIndex));
+        onChange={({oldIndex, newIndex}) => {
+          setPostItems(arrayMove(postItems, oldIndex, newIndex))
+          setPostItemIds(arrayMove(postItemIds, oldIndex, newIndex))
         }}
-        renderList={({ children, props }) => <Box {...props}>{children}</Box>}
-        renderItem={({ value, props, index }) => {
-          const { value: val, id, type } = value;
+        renderList={({children, props}) => <Box {...props}>{children}</Box>}
+        renderItem={({value, props, index}) => {
+          const {value: val, id, type} = value
           switch (type) {
             case ItemTypes.Text:
               return (
@@ -520,17 +536,17 @@ const NewPost = () => {
                   />
                   <Divider mt={3} />
                 </Box>
-              );
+              )
             case ItemTypes.Image:
               return (
                 <VStack key={index} py={6} {...props}>
                   <FormLabel>Image Content</FormLabel>
-                  <AspectRatio ratio={16 / 9} w={["80%", "80%", "60%"]} mb={6}>
+                  <AspectRatio ratio={16 / 9} w={['80%', '80%', '60%']} mb={6}>
                     <Image src={val} mb={12} />
                   </AspectRatio>
                   <Divider mt={3} />
                 </VStack>
-              );
+              )
 
             case ItemTypes.Markdown:
               return (
@@ -538,10 +554,10 @@ const NewPost = () => {
                   <Interweave content={val} />
                   <Divider mt={3} />
                 </Box>
-              );
+              )
 
             default:
-              return null;
+              return null
           }
         }}
       />
@@ -576,7 +592,7 @@ const NewPost = () => {
         <PostItemBtn text="Code Snippet" icon={FiCode} />
       </SimpleGrid>
     </Container>
-  );
-};
+  )
+}
 
-export default NewPost;
+export default NewPost

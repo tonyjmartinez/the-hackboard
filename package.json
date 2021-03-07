@@ -9,7 +9,7 @@
     "@emotion/styled": "^11.1.5",
     "filestack-react": "^3.2.1",
     "framer-motion": "^3.6.7",
-    "graphql": "^15.4.0",
+    "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
     "interweave": "^12.6.0",
     "moment": "^2.29.1",
@@ -26,7 +26,6 @@
     "react-virtualized-auto-sizer": "^1.0.4",
     "react-window": "^1.8.6",
     "typescript": "^4.0.3",
-    "urql": "^1.10.1",
     "web-vitals": "^0.2.4"
   },
   "scripts": {

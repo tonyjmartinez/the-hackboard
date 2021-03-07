@@ -39,6 +39,8 @@ const Page = () => {
     GetPosts,
   )
 
+  console.log(status, isFetching)
+
   const [sm, md, lg] = useMediaQuery([
     '(min-width: 0em)',
     '(min-width: 30em)',
@@ -54,7 +56,7 @@ const Page = () => {
     cardHeight = 350
   }
 
-  if (!data || !(data?.posts.length > 0)) {
+  if (isFetching || !data || !(data?.posts.length > 0)) {
     return <Skeleton />
   }
 
