@@ -104,7 +104,12 @@ const StyledBox = ({children}: {children: ReactNode}) => {
   const borderColor = useColorModeValue('gray', theme.colors.blue[500])
 
   return (
-    <Box border={`2px solid ${borderColor}`} borderRadius="5px" p={3}>
+    <Box
+      border={'2px solid'}
+      borderColor={borderColor}
+      borderRadius="5px"
+      p={3}
+    >
       {children}
     </Box>
   )

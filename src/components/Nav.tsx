@@ -70,6 +70,7 @@ const Nav = ({...rest}: BoxProps) => {
             onClick={toggleColorMode}
             colorScheme={buttonIconColor}
             aria-label="Dark Mode toggle"
+            mr={3}
             icon={
               isLight ? (
                 <FiMoon size={30} color={iconColor} />

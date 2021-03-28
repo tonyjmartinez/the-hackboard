@@ -39,8 +39,6 @@ const Page = () => {
     GetPosts,
   )
 
-  console.log(status, isFetching)
-
   const [sm, md, lg] = useMediaQuery([
     '(min-width: 0em)',
     '(min-width: 30em)',

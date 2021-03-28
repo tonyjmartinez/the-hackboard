@@ -69,18 +69,6 @@ const App = () => {
     }
   }, [accessToken])
 
-  // const client = createClient({
-  //   url: "https://the-hackboard.herokuapp.com/v1/graphql",
-  //   fetchOptions: () => {
-  //     if (accessToken) {
-  //       return {
-  //         headers: { authorization: `Bearer ${accessToken}` },
-  //       };
-  //     }
-  //     return {};
-  //   },
-  // });
-
   return (
     <QueryClientProvider client={queryClient}>
       <ChakraProvider theme={theme}>
@@ -99,7 +87,9 @@ const App = () => {
                 </Body>
               </Route>
               <Route path="/">
-                <Page />
+                <Body>
+                  <Page />
+                </Body>
               </Route>
             </Switch>
           </Router>
