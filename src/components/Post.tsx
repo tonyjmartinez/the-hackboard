@@ -42,12 +42,13 @@ const Post = () => {
   if (isFetching || !data) return <div>Loading...</div>
 
   return (
-    <>
+    <Box maxW="675px" m="auto">
       {data?.posts?.map(
         ({title, subtitle, post_items, image}: any, idx: number) => {
           return (
-            <Box key={idx} m="auto" mt={20} w="80%" textAlign="left">
+            <Box key={idx} m="auto" mt={20}  textAlign="left">
               <VStack spacing={7} align="start">
+              <Box w="100%" textAlign="center">
                 {image && (
                   <Center w="100%">
                     <AspectRatio ratio={16 / 9} w={['80%', '80%', '60%']}>
@@ -55,9 +56,9 @@ const Post = () => {
                     </AspectRatio>
                   </Center>
                 )}
-
-                <Heading>{title}</Heading>
-                <Text>{subtitle}</Text>
+                <Heading size="2xl" mb={6}>{title}</Heading>
+                <Heading size="md">{subtitle}</Heading>
+              </Box>
                 {post_items.length > 0 &&
                   post_items.map((item: any, idx: number) => (
                     <PostContent key={item} itemId={item} />
@@ -67,7 +68,7 @@ const Post = () => {
           )
         },
       )}
-    </>
+    </Box>
   )
 }
 

@@ -1,11 +1,13 @@
 import {useForm} from 'react-hook-form'
-import React, {useEffect, useState, ReactText, ReactNode} from 'react'
+import {useEffect, useState, ReactText, ReactNode} from 'react'
 import moment from 'moment'
-import {ItemTypes} from '../util/enums'
+import {ItemTypes} from '../../util/enums'
 import {List, arrayMove} from 'react-movable'
 import ReactFilestack from 'filestack-react'
-import useRequireAuth from '../hooks/use-require-auth'
+import useRequireAuth from '../../hooks/use-require-auth'
 import Interweave from 'interweave'
+import EditableText from 'components/NewPost/EditableText'
+import NewContent from './NewContent'
 
 import MarkdownEditor from './MarkdownEditor'
 
@@ -55,11 +57,7 @@ import {
 } from 'react-icons/fi'
 import {useAuth0} from '@auth0/auth0-react'
 
-type PostItemBtnProps = {
-  text?: string
-  icon?: any
-  onClick?: () => void
-}
+
 
 const InsertItem = `
   mutation ($value: String!, $userid: String!, $type: String!, $is_public: Boolean = false) {
@@ -115,28 +113,7 @@ const StyledBox = ({children}: {children: ReactNode}) => {
   )
 }
 
-const PostItemBtn = ({text, icon, onClick}: PostItemBtnProps) => {
-  const iconColor = useColorModeValue('black', 'blue.500')
-  const boxColor = useColorModeValue('gray.100', 'blue.900')
-  const theme = useTheme()
-  const shadowColor = useColorModeValue('gray', theme.colors.blue[500])
-  return (
-    <Box
-      bg={boxColor}
-      height="160px"
-      _hover={{border: `10px solid ${shadowColor}`}}
-      cursor="pointer"
-      onClick={onClick}
-    >
-      <Center h="100%">
-        <VStack>
-          <Icon color={iconColor} as={icon} boxSize={14} />
-          <Text>{text}</Text>
-        </VStack>
-      </Center>
-    </Box>
-  )
-}
+
 
 const thumbnail = (url: any) => {
   const parts = url.split('/')
@@ -148,81 +125,6 @@ type PostItem = {
   id: number
   value: string
   type: string
-}
-
-const PostItemWrapper = ({children, ...props}: any) => (
-  <HStack {...props}>{children}</HStack>
-)
-
-export interface EditableTextProps extends InputProps {
-  isEditing?: boolean
-  textValue: string
-  onTextSubmit?: (val: string) => void
-  singleLine?: boolean
-}
-
-const EditableText = ({
-  textValue,
-  onTextSubmit,
-  isEditing = false,
-  singleLine = false,
-}: EditableTextProps) => {
-  const [inputValue, setInputValue] = React.useState(textValue ?? '')
-  const [editing, setEditing] = useState(isEditing)
-
-  if (editing) {
-    return (
-      <PostItemWrapper>
-        {singleLine ? (
-          <Input
-            value={inputValue}
-            onChange={e => {
-              e.preventDefault()
-              setInputValue(e.target.value)
-            }}
-            placeholder="Text content"
-            size="sm"
-          />
-        ) : (
-          <Textarea
-            value={inputValue}
-            onChange={e => {
-              e.preventDefault()
-              setInputValue(e.target.value)
-            }}
-            placeholder="Text content"
-            size="sm"
-          />
-        )}
-
-        <Spacer />
-        <IconButton
-          icon={<FiCheckCircle />}
-          onClick={() => {
-            onTextSubmit?.(inputValue)
-            setEditing(false)
-          }}
-          aria-label="submit-text"
-        />
-        <IconButton
-          icon={<FiX />}
-          onClick={() => setEditing(!editing)}
-          aria-label="stop editing"
-        />
-      </PostItemWrapper>
-    )
-  }
-  return (
-    <PostItemWrapper>
-      <Text whiteSpace="pre-line">{textValue}</Text>
-      <Spacer />
-      <IconButton
-        icon={<FiEdit />}
-        onClick={() => setEditing(!editing)}
-        aria-label="edit"
-      />
-    </PostItemWrapper>
-  )
 }
 
 interface ItemType {
@@ -242,7 +144,7 @@ const NewPost = () => {
   const itemValueMutation = useGqlMutation(UpdateItemValue)
   const [url, setUrl] = useState<string | null>(null)
   const [postItems, setPostItems] = useState<PostItem[]>([])
-  const [radioValue, setRadioValue] = React.useState<ReactText>('true')
+  const [radioValue, setRadioValue] = useState<ReactText>('true')
   const [editing, setEditing] = useState<null | ItemTypes>(null)
   const [markdown, setMarkdown] = useState('')
   const {user} = useAuth0()
@@ -431,7 +333,7 @@ const NewPost = () => {
   }
 
   return (
-    <Container>
+    <Container pb={10}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormControl isInvalid={errors.title} marginY={3}>
           <HStack>
@@ -577,25 +479,7 @@ const NewPost = () => {
       {showImageUpload && <ImageUploader />}
 
       <Heading m={6}>Add Content</Heading>
-      <SimpleGrid columns={2} spacing={10} mt={6}>
-        <PostItemBtn
-          text="Text"
-          icon={FiEdit}
-          onClick={() => setEditing(ItemTypes.Text)}
-        />
-        <PostItemBtn
-          text="Image"
-          icon={FiImage}
-          onClick={() => setEditing(ItemTypes.Image)}
-        />
-
-        <PostItemBtn
-          text="Markdown"
-          icon={FiFileText}
-          onClick={() => setEditing(ItemTypes.Markdown)}
-        />
-        <PostItemBtn text="Code Snippet" icon={FiCode} />
-      </SimpleGrid>
+      <NewContent setEditing={setEditing}/>
     </Container>
   )
 }

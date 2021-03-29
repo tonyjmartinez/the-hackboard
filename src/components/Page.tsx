@@ -84,7 +84,7 @@ const Page = () => {
   }
 
   return (
-    <Box h="100vh">
+    <Box h="100vh" >
       <AutoSizer>
         {({height, width}) => (
           <List

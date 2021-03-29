@@ -3,7 +3,7 @@ import {BoxProps, Box} from '@chakra-ui/react'
 
 const BodyLayout = ({children, ...rest}: BoxProps) => {
   return (
-    <Box w="100%" py={10} {...rest}>
+    <Box w="100%" h="100vh" {...rest}>
       {children}
     </Box>
   )
