@@ -26,7 +26,12 @@
     "react-virtualized-auto-sizer": "^1.0.4",
     "react-window": "^1.8.6",
     "typescript": "^4.2.3",
-    "web-vitals": "^0.2.4"
+    "web-vitals": "^0.2.4",
+    "workbox-core": "^6.1.2",
+    "workbox-expiration": "^6.1.2",
+    "workbox-precaching": "^6.1.2",
+    "workbox-routing": "^6.1.2",
+    "workbox-strategies": "^6.1.2"
   },
   "scripts": {
     "start": "react-scripts start",

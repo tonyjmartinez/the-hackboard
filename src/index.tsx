@@ -3,6 +3,7 @@ import { hydrate, render } from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import { Auth0Provider } from "@auth0/auth0-react";
 import { ColorModeScript } from "@chakra-ui/react";
 import theme from "./theme/theme";
@@ -29,6 +30,8 @@ if (rootElement?.hasChildNodes()) {
 } else {
   render(<Application />, rootElement);
 }
+
+serviceWorkerRegistration.register()
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
