@@ -38,7 +38,7 @@ const Nav = ({...rest}: BoxProps) => {
       </Flex>
       <Flex w="100%" pos="fixed" bottom="0" {...rest}>
         <Spacer />
-        <Box px={[2, 2, 6]} bg="gray.600" opacity="0.8">
+        <Box px={2} bg="gray.600" opacity="0.8" mr={6}>
           {isAuthenticated ? (
             <>
               <Link to="/new">
