@@ -26,3 +26,5 @@ debug.log
 
 .code-workspace
 .history
+
+.devcontainer
