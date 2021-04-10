@@ -27,4 +27,5 @@ debug.log
 .code-workspace
 .history
 
+# Docker
 .devcontainer
